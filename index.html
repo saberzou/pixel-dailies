@@ -83,13 +83,14 @@
     .grid-item {
       position: absolute;
       box-sizing: border-box;
-      overflow: hidden;
+      overflow: visible;
       will-change: transform;
       user-select: none;
       backface-visibility: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
+      padding: 24px;
     }
 
     /* Card inside grid item */
@@ -103,9 +104,9 @@
     }
 
     .card {
-      width: 70%;
+      width: 60%;
       aspect-ratio: 3 / 4;
-      max-height: 85%;
+      max-height: 75%;
       position: relative;
       transform-style: preserve-3d;
       transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
