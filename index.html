@@ -27,18 +27,6 @@
       position: fixed;
       inset: 0;
       z-index: 0;
-      background: radial-gradient(1200px 800px at 20% 20%, #ff9ffc 0%, transparent 60%),
-                  radial-gradient(1000px 700px at 80% 10%, #5227ff 0%, transparent 55%),
-                  radial-gradient(1200px 900px at 50% 80%, #b19eef 0%, transparent 60%),
-                  #f2ecff;
-    }
-    #grainient::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="2" stitchTiles="stitch"/></filter><rect width="120" height="120" filter="url(%23n)" opacity="0.08"/></svg>');
-      mix-blend-mode: soft-light;
-      pointer-events: none;
     }
 
     .page {
@@ -301,16 +289,7 @@
     `;
 
     const container = document.getElementById('grainient');
-    let renderer;
-    try {
-      renderer = new Renderer({ webgl: 2, alpha: true, antialias: false, dpr: Math.min(window.devicePixelRatio || 1, 2) });
-    } catch (e) {
-      renderer = null;
-    }
-    if (!renderer || !renderer.gl) {
-      // WebGL2 not available; keep CSS fallback only
-      return;
-    }
+    const renderer = new Renderer({ webgl: 2, alpha: true, antialias: false, dpr: Math.min(window.devicePixelRatio || 1, 2) });
     const gl = renderer.gl;
     const canvas = gl.canvas;
     canvas.style.width = '100%';
