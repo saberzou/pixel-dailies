@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pixel Dailies — Daily Pixel Art</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: #E8F5E9;
+      color: #2B2C34;
+      padding: 0;
+      min-height: 100vh;
+    }
+    
+    .header {
+      text-align: center;
+      padding: 3rem 1.5rem 2rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    .site-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 3rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.02em;
+    }
+    
+    .site-subtitle {
+      font-size: 1.125rem;
+      color: #5A5A5A;
+      font-weight: 400;
+    }
+    
+    .gallery {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+      display: flex;
+      flex-direction: column;
+      gap: 3rem;
+    }
+    
+    .card-container {
+      perspective: 1200px;
+      width: 100%;
+      aspect-ratio: 1;
+      max-width: 420px;
+      margin: 0 auto;
+    }
+    
+    .card {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+    }
+    
+    .card.flipped {
+      transform: rotateY(180deg);
+    }
+    
+    .card-face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      background: #FFFFFE;
+      border-radius: 12px;
+      box-shadow: 0 4px 24px rgba(43, 44, 52, 0.08);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2.5rem 2rem 3.5rem;
+    }
+    
+    .card-front {
+      /* front is default */
+    }
+    
+    .card-back {
+      transform: rotateY(180deg);
+      background: #FFFFFE;
+      padding: 3rem;
+    }
+    
+    .pixel-canvas {
+      image-rendering: pixelated;
+      image-rendering: -moz-crisp-edges;
+      image-rendering: crisp-edges;
+      border-radius: 4px;
+      width: 100%;
+      height: auto;
+      max-width: 320px;
+    }
+    
+    .card-back-content {
+      text-align: center;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .card-title {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #FF6B9D;
+      letter-spacing: -0.01em;
+    }
+    
+    @media (max-width: 640px) {
+      .site-title {
+        font-size: 2.25rem;
+      }
+      
+      .site-subtitle {
+        font-size: 1rem;
+      }
+      
+      .gallery {
+        gap: 2.5rem;
+        padding: 1.5rem 1rem 3rem;
+      }
+      
+      .card-container {
+        max-width: 100%;
+      }
+      
+      .card-face {
+        padding: 1.5rem 1.25rem 2.5rem;
+      }
+      
+      .card-back {
+        padding: 2rem;
+      }
+      
+      .card-title {
+        font-size: 1.75rem;
+      }
+    }
+    
+    @media (max-width: 400px) {
+      .site-title {
+        font-size: 1.875rem;
+      }
+      
+      .card-title {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1 class="site-title">Pixel Dailies</h1>
+    <p class="site-subtitle">A new piece of pixel art, every day.</p>
+  </div>
+  
+  <div class="gallery" id="gallery"></div>
+  
+  <script src="data.js"></script>
+  <script>
+    // Animation state tracking
+    const animationStates = new Map();
+    
+    function createCard(piece) {
+      const container = document.createElement('div');
+      container.className = 'card-container';
+      
+      const card = document.createElement('div');
+      card.className = 'card';
+      
+      // Front face with pixel art
+      const front = document.createElement('div');
+      front.className = 'card-face card-front';
+      
+      const canvas = document.createElement('canvas');
+      canvas.className = 'pixel-canvas';
+      canvas.width = piece.size;
+      canvas.height = piece.size;
+      front.appendChild(canvas);
+      
+      // Back face with title
+      const back = document.createElement('div');
+      back.className = 'card-face card-back';
+      back.innerHTML = `
+        <div class="card-back-content">
+          <h2 class="card-title">${piece.title}</h2>
+        </div>
+      `;
+      
+      card.appendChild(front);
+      card.appendChild(back);
+      container.appendChild(card);
+      
+      // Flip card on click
+      card.addEventListener('click', () => {
+        card.classList.toggle('flipped');
+      });
+      
+      // Start animation
+      startAnimation(canvas, piece);
+      
+      return container;
+    }
+    
+    function startAnimation(canvas, piece) {
+      const ctx = canvas.getContext('2d');
+      let currentFrame = 0;
+      const frameDelay = 1000 / piece.fps;
+      let lastFrameTime = 0;
+      
+      function drawFrame(timestamp) {
+        if (!lastFrameTime) lastFrameTime = timestamp;
+        const elapsed = timestamp - lastFrameTime;
+        
+        if (elapsed >= frameDelay) {
+          const frameData = piece.frames[currentFrame];
+          const palette = piece.palette;
+          
+          // Clear canvas
+          ctx.clearRect(0, 0, piece.size, piece.size);
+          
+          // Draw pixels
+          for (let y = 0; y < piece.size; y++) {
+            for (let x = 0; x < piece.size; x++) {
+              const index = y * piece.size + x;
+              const colorIndex = parseInt(frameData[index], 16);
+              const color = palette[colorIndex] || palette[0];
+              
+              ctx.fillStyle = color;
+              ctx.fillRect(x, y, 1, 1);
+            }
+          }
+          
+          // Move to next frame
+          currentFrame = (currentFrame + 1) % piece.frames.length;
+          lastFrameTime = timestamp;
+        }
+        
+        // Store animation ID
+        const animId = requestAnimationFrame(drawFrame);
+        animationStates.set(canvas, animId);
+      }
+      
+      drawFrame(0);
+    }
+    
+    // Render gallery
+    function renderGallery() {
+      const galleryEl = document.getElementById('gallery');
+      
+      // Sort by date descending (newest first)
+      const sorted = [...gallery].sort((a, b) => 
+        new Date(b.date) - new Date(a.date)
+      );
+      
+      sorted.forEach(piece => {
+        const card = createCard(piece);
+        galleryEl.appendChild(card);
+      });
+    }
+    
+    // Initialize
+    renderGallery();
+    
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', () => {
+      animationStates.forEach((animId) => {
+        cancelAnimationFrame(animId);
+      });
+      animationStates.clear();
+    });
+  </script>
+</body>
+</html>
