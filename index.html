@@ -572,6 +572,15 @@
     // ── Init ──
     const init = () => {
       calculateCellSizeAndTiling();
+      // Center the latest piece (grid position 0,0) in the viewport
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const initialX = -(vw / 2 - cellWidth / 2);
+      const initialY = -(vh / 2 - cellHeight / 2);
+      state.cameraOffset.x = initialX;
+      state.cameraOffset.y = initialY;
+      state.targetOffset.x = initialX;
+      state.targetOffset.y = initialY;
       createGridItems();
       updateItemPositions();
       animate();
