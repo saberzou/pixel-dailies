@@ -56,8 +56,8 @@
     .card-container {
       perspective: 1200px;
       width: 100%;
-      aspect-ratio: 1;
-      max-width: 336px;
+      aspect-ratio: 3 / 4;
+      max-width: 280px;
       margin: 0 auto;
     }
     
@@ -86,7 +86,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 1.5rem 1.5rem 5rem;
+      padding: 1.25rem 1.25rem 4rem;
     }
     
     .card-front {
@@ -187,16 +187,17 @@
       const front = document.createElement('div');
       front.className = 'card-face card-front';
       
-      // Set card background based on piece background
-      if (piece.palette[0] === '#000000') {
-        front.style.background = '#000000';
-      }
+      // Set card background based on piece background - card stays white (Polaroid)
+      // Canvas background handles the art bg
       
       const canvas = document.createElement('canvas');
       canvas.className = 'pixel-canvas';
-      // Canvas size: 32x32 grid, 10px per cell (8px dot + 2px gap)
-      canvas.width = 320;
-      canvas.height = 320;
+      // Canvas size: 20x20 grid, 12px per cell (10px dot + 2px gap)
+      const cellSize = 12;
+      const canvasSize = piece.size * cellSize;
+      canvas.width = canvasSize;
+      canvas.height = canvasSize;
+      canvas.style.background = piece.palette[0];
       front.appendChild(canvas);
       
       // Back face with title
@@ -229,10 +230,11 @@
       const frameDelay = 1000 / piece.fps;
       let lastFrameTime = 0;
       
-      const dotSize = 8;
+      const dotSize = 10;
       const gap = 2;
       const cellSize = dotSize + gap;
       const dotRadius = dotSize / 2;
+      const canvasSize = piece.size * cellSize;
       
       function drawFrame(timestamp) {
         if (!lastFrameTime) lastFrameTime = timestamp;
@@ -243,7 +245,7 @@
           const palette = piece.palette;
           
           // Clear canvas
-          ctx.clearRect(0, 0, 320, 320);
+          ctx.clearRect(0, 0, canvasSize, canvasSize);
           
           // Draw circle dots
           for (let y = 0; y < piece.size; y++) {
