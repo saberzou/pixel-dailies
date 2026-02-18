@@ -57,7 +57,7 @@
       perspective: 1200px;
       width: 100%;
       aspect-ratio: 1;
-      max-width: 420px;
+      max-width: 336px;
       margin: 0 auto;
     }
     
@@ -80,13 +80,13 @@
       height: 100%;
       backface-visibility: hidden;
       background: #FFFFFE;
-      border-radius: 12px;
+      border-radius: 0;
       box-shadow: 0 4px 24px rgba(43, 44, 52, 0.08);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 2.5rem 2rem 3.5rem;
+      padding: 1.5rem 1.5rem 5rem;
     }
     
     .card-front {
@@ -100,13 +100,9 @@
     }
     
     .pixel-canvas {
-      image-rendering: pixelated;
-      image-rendering: -moz-crisp-edges;
-      image-rendering: crisp-edges;
-      border-radius: 4px;
       width: 100%;
       height: auto;
-      max-width: 320px;
+      max-width: 280px;
     }
     
     .card-back-content {
@@ -144,7 +140,7 @@
       }
       
       .card-face {
-        padding: 1.5rem 1.25rem 2.5rem;
+        padding: 1.25rem 1.25rem 4rem;
       }
       
       .card-back {
@@ -191,10 +187,16 @@
       const front = document.createElement('div');
       front.className = 'card-face card-front';
       
+      // Set card background based on piece background
+      if (piece.palette[0] === '#000000') {
+        front.style.background = '#000000';
+      }
+      
       const canvas = document.createElement('canvas');
       canvas.className = 'pixel-canvas';
-      canvas.width = piece.size;
-      canvas.height = piece.size;
+      // Canvas size: 32x32 grid, 10px per cell (8px dot + 2px gap)
+      canvas.width = 320;
+      canvas.height = 320;
       front.appendChild(canvas);
       
       // Back face with title
@@ -227,6 +229,11 @@
       const frameDelay = 1000 / piece.fps;
       let lastFrameTime = 0;
       
+      const dotSize = 8;
+      const gap = 2;
+      const cellSize = dotSize + gap;
+      const dotRadius = dotSize / 2;
+      
       function drawFrame(timestamp) {
         if (!lastFrameTime) lastFrameTime = timestamp;
         const elapsed = timestamp - lastFrameTime;
@@ -236,17 +243,28 @@
           const palette = piece.palette;
           
           // Clear canvas
-          ctx.clearRect(0, 0, piece.size, piece.size);
+          ctx.clearRect(0, 0, 320, 320);
           
-          // Draw pixels
+          // Draw circle dots
           for (let y = 0; y < piece.size; y++) {
             for (let x = 0; x < piece.size; x++) {
               const index = y * piece.size + x;
               const colorIndex = parseInt(frameData[index], 16);
-              const color = palette[colorIndex] || palette[0];
               
+              // Skip background color (index 0) - let card background show through
+              if (colorIndex === 0) continue;
+              
+              const color = palette[colorIndex];
+              
+              // Calculate center of dot
+              const centerX = x * cellSize + dotRadius + gap;
+              const centerY = y * cellSize + dotRadius + gap;
+              
+              // Draw circle
               ctx.fillStyle = color;
-              ctx.fillRect(x, y, 1, 1);
+              ctx.beginPath();
+              ctx.arc(centerX, centerY, dotRadius, 0, Math.PI * 2);
+              ctx.fill();
             }
           }
           
