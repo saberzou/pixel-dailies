@@ -57,7 +57,7 @@
       perspective: 1200px;
       width: 100%;
       aspect-ratio: 3 / 4;
-      max-width: 280px;
+      max-width: 240px;
       margin: 0 auto;
     }
     
@@ -86,7 +86,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 1.25rem 1.25rem 4rem;
+      padding: 1rem 1rem 3.5rem;
     }
     
     .card-front {
@@ -140,7 +140,7 @@
       }
       
       .card-face {
-        padding: 1.25rem 1.25rem 4rem;
+        padding: 1rem 1rem 3.5rem;
       }
       
       .card-back {
@@ -233,54 +233,31 @@
       const dotSize = 10;
       const gap = 2;
       const cellSize = dotSize + gap;
-      const dotRadius = dotSize / 2;
       const canvasSize = piece.size * cellSize;
       
-      function drawFrame(timestamp) {
-        if (!lastFrameTime) lastFrameTime = timestamp;
-        const elapsed = timestamp - lastFrameTime;
+      function drawFrame() {
+        const frameData = piece.frames[0];
+        const palette = piece.palette;
         
-        if (elapsed >= frameDelay) {
-          const frameData = piece.frames[currentFrame];
-          const palette = piece.palette;
-          
-          // Clear canvas
-          ctx.clearRect(0, 0, canvasSize, canvasSize);
-          
-          // Draw circle dots
-          for (let y = 0; y < piece.size; y++) {
-            for (let x = 0; x < piece.size; x++) {
-              const index = y * piece.size + x;
-              const colorIndex = parseInt(frameData[index], 16);
-              
-              // Skip background color (index 0) - let card background show through
-              if (colorIndex === 0) continue;
-              
-              const color = palette[colorIndex];
-              
-              // Calculate center of dot
-              const centerX = x * cellSize + dotRadius + gap;
-              const centerY = y * cellSize + dotRadius + gap;
-              
-              // Draw circle
-              ctx.fillStyle = color;
-              ctx.beginPath();
-              ctx.arc(centerX, centerY, dotRadius, 0, Math.PI * 2);
-              ctx.fill();
-            }
+        // Clear canvas
+        ctx.clearRect(0, 0, canvasSize, canvasSize);
+        
+        // Draw square dots (no animation)
+        for (let y = 0; y < piece.size; y++) {
+          for (let x = 0; x < piece.size; x++) {
+            const index = y * piece.size + x;
+            const colorIndex = parseInt(frameData[index], 16);
+            if (colorIndex === 0) continue;
+            const color = palette[colorIndex];
+            const px = x * cellSize + gap;
+            const py = y * cellSize + gap;
+            ctx.fillStyle = color;
+            ctx.fillRect(px, py, dotSize, dotSize);
           }
-          
-          // Move to next frame
-          currentFrame = (currentFrame + 1) % piece.frames.length;
-          lastFrameTime = timestamp;
         }
-        
-        // Store animation ID
-        const animId = requestAnimationFrame(drawFrame);
-        animationStates.set(canvas, animId);
       }
       
-      drawFrame(0);
+      drawFrame();
     }
     
     // Render gallery
