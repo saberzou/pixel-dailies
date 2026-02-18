@@ -445,13 +445,9 @@
       }
     };
 
-    titleEl?.addEventListener('dblclick', toggleLiquid);
-    titleEl?.addEventListener('touchend', (e) => {
-      const now = Date.now();
-      if (now - lastTap < 300) {
-        toggleLiquid();
-      }
-      lastTap = now;
+    titleEl?.addEventListener('click', toggleLiquid);
+    titleEl?.addEventListener('touchend', () => {
+      toggleLiquid();
     });
   </script>
 
