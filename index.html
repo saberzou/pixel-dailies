@@ -18,14 +18,38 @@
     body {
       overflow: hidden;
       font-family: 'Jost', sans-serif;
-      background: #000;
+      background: #F2F2F2;
       color: #2B2C34;
     }
 
     #grainient {
+      display: none;
+    }
+
+    .header {
       position: fixed;
-      inset: 0;
-      z-index: 0;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 10;
+      text-align: center;
+      padding: 2.5rem 1.5rem 1.5rem;
+      pointer-events: none;
+    }
+
+    .site-title {
+      font-family: 'Playwrite AT', 'Jost', sans-serif;
+      font-size: 2.5rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #2B2C34;
+    }
+
+    .site-subtitle {
+      font-size: 1rem;
+      color: #999;
+      font-weight: 400;
+      margin-top: 0.25rem;
     }
 
     #viewport {
@@ -140,6 +164,10 @@
 </head>
 <body>
   <div id="grainient" class="grainient-container"></div>
+  <div class="header">
+    <h1 class="site-title">Pixel Dailies</h1>
+    <p class="site-subtitle">A new piece of pixel art, every day.</p>
+  </div>
   <div id="viewport">
     <div id="container">
       <div id="grid"></div>
