@@ -362,7 +362,7 @@
       const requiredCoverFactor = 1 / minScale;
       const size = Math.max(vw / CONFIG.COLS, vh / CONFIG.ROWS) * requiredCoverFactor;
       cellWidth = size;
-      cellHeight = size;
+      cellHeight = size * 1.35;
       const totalWidth = cellWidth * CONFIG.COLS;
       const totalHeight = cellHeight * CONFIG.ROWS;
       tilesX = Math.max(1, Math.ceil((vw * requiredCoverFactor) / totalWidth) + CONFIG.tileOverscan);
