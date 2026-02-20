@@ -398,7 +398,9 @@
       gridEl.innerHTML = '';
       state.gridItems = [];
 
-      const pieces = [...gallery].sort((a, b) => new Date(b.date) - new Date(a.date));
+      // Sort newest first; for same date, later entries (newer additions) come first
+      const pieces = gallery.map((p, i) => ({ ...p, _i: i }))
+        .sort((a, b) => new Date(b.date) - new Date(a.date) || b._i - a._i);
       const total = CONFIG.COLS * CONFIG.ROWS; // 9 slots
 
       for (let tileY = -tilesY; tileY <= tilesY; tileY++) {
