@@ -324,8 +324,8 @@
     const gridEl = document.getElementById('grid');
 
     const CONFIG = {
-      COLS: 3,
-      ROWS: 3,
+      get COLS() { return Math.ceil(Math.sqrt(gallery.length)); },
+      get ROWS() { return Math.ceil(gallery.length / Math.ceil(Math.sqrt(gallery.length))); },
       easingFactor: 0.1,
       rotationStrength: 0.1,
       rotationEasing: 0.06,
@@ -401,7 +401,7 @@
       // Sort newest first; for same date, later entries (newer additions) come first
       const pieces = gallery.map((p, i) => ({ ...p, _i: i }))
         .sort((a, b) => new Date(b.date) - new Date(a.date) || b._i - a._i);
-      const total = CONFIG.COLS * CONFIG.ROWS; // 9 slots
+      const total = CONFIG.COLS * CONFIG.ROWS;
 
       for (let tileY = -tilesY; tileY <= tilesY; tileY++) {
         for (let tileX = -tilesX; tileX <= tilesX; tileX++) {
