@@ -403,8 +403,8 @@
     // FLIP: capture state, move to stage, animate
     var flipState = Flip.getState(el);
     stageEl.appendChild(el);
-    el.style.width  = 'min(400px, 72vmin)';
-    el.style.height = 'min(400px, 72vmin)';
+    el.style.width  = '100%';
+    el.style.height = '100%';
     Flip.from(flipState, {
       duration: 0.65,
       ease: 'eSnap',
