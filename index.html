@@ -94,6 +94,7 @@
       align-items: center;
       justify-content: center;
       pointer-events: none;
+      padding: 0;
     }
 
     /* ── Detail panel (right half) ── */
@@ -403,8 +404,13 @@
     // FLIP: capture state, move to stage, animate
     var flipState = Flip.getState(el);
     stageEl.appendChild(el);
-    el.style.width  = '100%';
-    el.style.height = '100%';
+    // Fill the left panel proportionally (square pixel art → use min dimension)
+    var stageW = stageEl.offsetWidth;
+    var stageH = stageEl.offsetHeight;
+    var fillSize = Math.min(stageW, stageH);
+    el.style.width  = fillSize + 'px';
+    el.style.height = fillSize + 'px';
+    el.style.borderRadius = '0';
     Flip.from(flipState, {
       duration: 0.65,
       ease: 'eSnap',
@@ -427,6 +433,7 @@
     var flipState = Flip.getState(el);
     el.style.width  = '';
     el.style.height = '';
+    el.style.borderRadius = '';
     gridEl.appendChild(el);
     Flip.from(flipState, {
       duration: animate ? 0.5 : 0.001,
