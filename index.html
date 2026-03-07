@@ -568,8 +568,21 @@
       state.containerRotationX += (state.targetRotationX - state.containerRotationX) * CONFIG.rotationEasing;
       state.containerRotationY += (state.targetRotationY - state.containerRotationY) * CONFIG.rotationEasing;
 
-      containerEl.style.transform =
-        `scale(${state.containerScale}) skewY(${state.containerRotationX}deg) skewX(${state.containerRotationY}deg)`;
+      // Snap to identity when near rest to keep text crisp (avoids subpixel raster blur)
+      const isAtRest =
+        Math.abs(state.containerScale - 1) < 0.002 &&
+        Math.abs(state.containerRotationX) < 0.05 &&
+        Math.abs(state.containerRotationY) < 0.05;
+
+      if (isAtRest) {
+        state.containerScale = 1;
+        state.containerRotationX = 0;
+        state.containerRotationY = 0;
+        containerEl.style.transform = 'none';
+      } else {
+        containerEl.style.transform =
+          `scale(${state.containerScale}) skewY(${state.containerRotationX}deg) skewX(${state.containerRotationY}deg)`;
+      }
     };
 
     // ── Init ──
