@@ -324,9 +324,7 @@
         ctx.fillStyle = piece.palette[ci];
         var px = col * CELL + PGAP;
         var py = row * CELL + PGAP;
-        ctx.beginPath();
-        ctx.roundRect(px, py, DOT, DOT, 3);
-        ctx.fill();
+        ctx.fillRect(px, py, DOT, DOT);
       }
     }
   }
