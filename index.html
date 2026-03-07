@@ -195,6 +195,43 @@
       text-align: center;
       letter-spacing: 0.05em;
     }
+    /* ── Mobile: stack top/bottom ── */
+    @media (max-width: 768px) {
+      #flip-stage {
+        width: 100%;
+        height: 55%;
+        top: 0; left: 0;
+      }
+      #detail-panel {
+        width: 100%;
+        height: 45%;
+        top: auto;
+        bottom: 0;
+        right: 0;
+        padding: 2rem 1.5rem;
+        justify-content: flex-start;
+      }
+      .d-title {
+        font-size: clamp(1.5rem, 7vw, 2.5rem);
+        margin-bottom: 1.5rem;
+      }
+      #close-btn {
+        top: 1rem;
+        right: 1rem;
+      }
+      #zoom-bar {
+        bottom: 1rem;
+        padding: 4px 6px;
+      }
+      .zbtn {
+        font-size: 0.55rem;
+        padding: 3px 6px;
+      }
+      .grid-item {
+        width: 160px;
+        height: 160px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -242,7 +279,7 @@
   CustomEase.create('eSnap', 'M0,0 C0.05,0 0.18,1 1,1');
 
   // ── Constants ──
-  var ITEM_SIZE = 240;
+  var ITEM_SIZE = window.innerWidth <= 768 ? 160 : 240;
   var ITEM_GAP  = 16;
   var COLS = Math.ceil(Math.sqrt(gallery.length));
   var ROWS = Math.ceil(gallery.length / COLS);
@@ -420,7 +457,8 @@
 
     // Slide in panel
     panelEl.classList.add('open');
-    gsap.to(panelEl, { x: 0, duration: 0.55, ease: 'power3.out' });
+    var isMobile = window.innerWidth <= 768;
+    gsap.to(panelEl, { x: isMobile ? 0 : 0, y: isMobile ? 0 : 0, duration: 0.55, ease: 'power3.out' });
   }
 
   function closeDetail(animate) {
@@ -443,7 +481,8 @@
     });
 
     gsap.to(panelEl, {
-      x: '100%',
+      x: isMobile ? 0 : '100%',
+      y: isMobile ? '100%' : 0,
       duration: animate ? 0.4 : 0.001,
       ease: 'power3.in',
       onComplete: function() { panelEl.classList.remove('open'); }
@@ -510,7 +549,7 @@
 
   // ── Init ──
   initDraggable();
-  gsap.set(panelEl, { x: '100%' });
+  gsap.set(panelEl, { x: window.innerWidth <= 768 ? 0 : '100%', y: window.innerWidth <= 768 ? '100%' : 0 });
   updateZoomPct();
 
   var initPos = centeredPos(1);
