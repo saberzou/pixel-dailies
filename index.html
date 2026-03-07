@@ -466,6 +466,7 @@
     if (!activeItem) return;
     var el = activeItem.el;
     activeItem = null;
+    var isMobile = window.innerWidth <= 768;
 
     // FLIP back to grid
     var flipState = Flip.getState(el);
