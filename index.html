@@ -361,7 +361,10 @@
       const minScale = 1 - CONFIG.maxScaleEffect;
       const requiredCoverFactor = 1 / minScale;
       const naturalSize = Math.max(vw / CONFIG.COLS, vh / CONFIG.ROWS) * requiredCoverFactor;
-      const minSize = Math.max(vw / 3, vh / 3) * requiredCoverFactor;
+      // Desktop: smaller cards; mobile: keep them readable
+      const isDesktop = vw >= 768;
+      const minDivisor = isDesktop ? 6 : 3;
+      const minSize = Math.max(vw / minDivisor, vh / minDivisor) * requiredCoverFactor;
       const size = Math.max(naturalSize, minSize);
       cellWidth = size;
       cellHeight = size * 1.35;
