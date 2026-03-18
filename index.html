@@ -307,13 +307,14 @@
     new ResizeObserver(setSize).observe(container);
     setSize();
 
-    const t0 = performance.now();
-    const loop = (t) => {
-      program.uniforms.iTime.value = (t - t0) * 0.001;
-      renderer.render({ scene: mesh });
-      requestAnimationFrame(loop);
-    };
-    requestAnimationFrame(loop);
+    // Grainient is hidden (display:none) — skip animation loop entirely
+    // const t0 = performance.now();
+    // const loop = (t) => {
+    //   program.uniforms.iTime.value = (t - t0) * 0.001;
+    //   renderer.render({ scene: mesh });
+    //   requestAnimationFrame(loop);
+    // };
+    // requestAnimationFrame(loop);
   </script>
 
   <script src="data.js"></script>
@@ -463,16 +464,24 @@
     };
 
     // ── Position updates (the infinite scroll trick) ──
-    const updateItemPositions = () => {
+    // Items get static positions once; only the grid container moves
+    const placeItemsOnce = () => {
       const totalWidth = cellWidth * CONFIG.COLS;
       const totalHeight = cellHeight * CONFIG.ROWS;
       state.gridItems.forEach(({ element, baseX, baseY, tileX, tileY, yOffset }) => {
-        const baseOffsetX = state.cameraOffset.x % totalWidth;
-        const baseOffsetY = state.cameraOffset.y % totalHeight;
-        const px = baseX * cellWidth + tileX * totalWidth - baseOffsetX;
-        const py = baseY * cellHeight + tileY * totalHeight - baseOffsetY + yOffset;
+        const px = baseX * cellWidth + tileX * totalWidth;
+        const py = baseY * cellHeight + tileY * totalHeight + yOffset;
         element.style.transform = `translate3d(${px}px, ${py}px, 0)`;
       });
+    };
+
+    const updateItemPositions = () => {
+      const totalWidth = cellWidth * CONFIG.COLS;
+      const totalHeight = cellHeight * CONFIG.ROWS;
+      // Wrap offset so we stay within one tile period
+      const ox = ((state.cameraOffset.x % totalWidth) + totalWidth) % totalWidth;
+      const oy = ((state.cameraOffset.y % totalHeight) + totalHeight) % totalHeight;
+      gridEl.style.transform = `translate3d(${-ox}px, ${-oy}px, 0)`;
     };
 
     // ── Event handlers ──
@@ -494,6 +503,7 @@
       state.scrollSpeed = Math.max(state.scrollSpeed, speed);
       state.targetRotationX = -dx * CONFIG.rotationStrength;
       state.targetRotationY = dy * CONFIG.rotationStrength;
+      startAnimating();
     };
 
     const onMouseUp = () => {
@@ -511,6 +521,7 @@
       state.scrollSpeed = Math.max(state.scrollSpeed, speed);
       state.targetRotationX = -e.deltaX * CONFIG.rotationStrength * 0.3;
       state.targetRotationY = e.deltaY * CONFIG.rotationStrength * 0.3;
+      startAnimating();
     };
 
     // Touch
@@ -534,6 +545,7 @@
       state.scrollSpeed = Math.max(state.scrollSpeed, speed);
       state.targetRotationX = -dx * CONFIG.rotationStrength;
       state.targetRotationY = dy * CONFIG.rotationStrength;
+      startAnimating();
     };
 
     const onTouchEnd = () => {
@@ -551,15 +563,29 @@
     viewport.addEventListener('touchend', onTouchEnd);
 
     // ── Animation loop ──
-    const animate = () => {
-      requestAnimationFrame(animate);
+    const DEAD_ZONE = 0.5; // px threshold to snap and stop
+    const SPEED_DEAD = 0.1;
+    let animating = false;
 
+    const startAnimating = () => {
+      if (!animating) { animating = true; requestAnimationFrame(animate); }
+    };
+
+    const animate = () => {
       const dx = state.targetOffset.x - state.cameraOffset.x;
       const dy = state.targetOffset.y - state.cameraOffset.y;
 
-      if (Math.abs(dx) > 0.01 || Math.abs(dy) > 0.01) {
+      let needsFrame = false;
+
+      if (Math.abs(dx) > DEAD_ZONE || Math.abs(dy) > DEAD_ZONE) {
         state.cameraOffset.x += dx * CONFIG.easingFactor;
         state.cameraOffset.y += dy * CONFIG.easingFactor;
+        updateItemPositions();
+        needsFrame = true;
+      } else if (Math.abs(dx) > 0.01 || Math.abs(dy) > 0.01) {
+        // Snap to target
+        state.cameraOffset.x = state.targetOffset.x;
+        state.cameraOffset.y = state.targetOffset.y;
         updateItemPositions();
       }
 
@@ -567,12 +593,27 @@
       state.targetScale = 1 - (speedFactor * CONFIG.maxScaleEffect);
       state.scrollSpeed *= 0.85;
 
+      if (state.scrollSpeed > SPEED_DEAD) needsFrame = true;
+      else state.scrollSpeed = 0;
+
       state.containerScale += (state.targetScale - state.containerScale) * CONFIG.scaleEasing;
       state.containerRotationX += (state.targetRotationX - state.containerRotationX) * CONFIG.rotationEasing;
       state.containerRotationY += (state.targetRotationY - state.containerRotationY) * CONFIG.rotationEasing;
 
+      if (Math.abs(state.containerScale - state.targetScale) > 0.001 ||
+          Math.abs(state.containerRotationX) > 0.01 ||
+          Math.abs(state.containerRotationY) > 0.01) {
+        needsFrame = true;
+      }
+
       containerEl.style.transform =
         `scale(${state.containerScale}) skewY(${state.containerRotationX}deg) skewX(${state.containerRotationY}deg)`;
+
+      if (needsFrame || state.isDragging) {
+        requestAnimationFrame(animate);
+      } else {
+        animating = false;
+      }
     };
 
     // ── Init ──
@@ -588,13 +629,15 @@
       state.targetOffset.x = initialX;
       state.targetOffset.y = initialY;
       createGridItems();
+      placeItemsOnce();
       updateItemPositions();
-      animate();
+      startAnimating();
     };
 
     window.addEventListener('resize', () => {
       calculateCellSizeAndTiling();
       createGridItems();
+      placeItemsOnce();
       updateItemPositions();
     });
 
