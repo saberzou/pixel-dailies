@@ -180,7 +180,7 @@
     camera.position.z = 25;
 
     const renderer = new THREE.WebGLRenderer({ 
-      antialias: true, 
+      antialias: false, 
       alpha: true,
       powerPreference: 'high-performance'
     });
@@ -334,14 +334,12 @@
       void main() {
         if (vAlpha < 0.01) discard;
         
-        // Rounded square for each voxel
-        vec2 coord = gl_PointCoord - vec2(0.5);
-        float dist = length(coord);
+        // Hard square — pixel art needs crisp edges
+        vec2 coord = abs(gl_PointCoord - vec2(0.5));
+        float maxCoord = max(coord.x, coord.y);
+        if (maxCoord > 0.45) discard;
         
-        // Soft rounded corners
-        float alpha = 1.0 - smoothstep(0.35, 0.5, dist);
-        
-        gl_FragColor = vec4(vColor, vAlpha * alpha);
+        gl_FragColor = vec4(vColor, vAlpha);
       }
     `;
 
