@@ -68,11 +68,12 @@
 
     .piece-info {
       opacity: 1;
-      transition: opacity 0.4s ease;
+      transition: opacity 0.3s ease;
     }
 
     .piece-info.fading {
       opacity: 0;
+      pointer-events: none;
     }
 
     .piece-title {
@@ -482,8 +483,10 @@
           titleEl.textContent = piece.title;
           dateEl.textContent = piece.date;
           counterEl.textContent = `${index + 1} / ${pieces.length}`;
-          infoEl.classList.remove('fading');
-        }, 400);
+          requestAnimationFrame(() => {
+            infoEl.classList.remove('fading');
+          });
+        }, 350);
       } else {
         titleEl.textContent = piece.title;
         dateEl.textContent = piece.date;
