@@ -163,8 +163,9 @@
     const SCROLL_THRESHOLD = 50;
     const TRANSITION_DURATION = 0.8;
 
-    // ── Sort gallery newest first ──
-    const pieces = window.gallery
+    // data.js uses `const gallery` which creates a global lexical binding
+    // accessible as `gallery` but NOT as `window.gallery` from modules
+    const pieces = gallery
       .map((p, i) => ({ ...p, _index: i }))
       .sort((a, b) => {
         const dateDiff = new Date(b.date) - new Date(a.date);
@@ -204,6 +205,7 @@
       uniform sampler2D uNextFrame;
       uniform float uIdleTime;
       uniform vec2 uMouse;
+      uniform float uScreenH;
 
       varying vec3 vColor;
       varying float vAlpha;
@@ -314,8 +316,11 @@
         gl_Position = projectionMatrix * modelViewMatrix * vec4(finalPos, 1.0);
         
         // Point size based on scale
-        float pointScale = max(elasticScale, 0.01) * ${VOXEL_SIZE};
-        gl_PointSize = pointScale * 20.0 * (1000.0 / gl_Position.w);
+        // Point size: match grid cell size in screen pixels
+        float worldCellSize = ${(VOXEL_SIZE * GRID_SCALE).toFixed(4)};
+        float projScale = projectionMatrix[1][1];
+        float pointPx = worldCellSize * projScale * uScreenH / gl_Position.w;
+        gl_PointSize = max(elasticScale, 0.01) * pointPx;
       }
     `;
 
@@ -412,7 +417,8 @@
         uCurrentFrame: { value: createFrameTexture(pieces[0]?.frames?.[0] || '') },
         uNextFrame: { value: createFrameTexture(pieces[0]?.frames?.[0] || '') },
         uIdleTime: { value: 0 },
-        uMouse: { value: new THREE.Vector2(0, 0) }
+        uMouse: { value: new THREE.Vector2(0, 0) },
+        uScreenH: { value: window.innerHeight }
       },
       transparent: true,
       depthWrite: false,
@@ -656,6 +662,7 @@
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
+      material.uniforms.uScreenH.value = window.innerHeight;
     });
 
     // ── Initialize ──
