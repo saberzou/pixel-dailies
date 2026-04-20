@@ -219,11 +219,6 @@
         return pow(2.0, -dampExp * t) * sin((t - p / 4.0) * TAU / p) + 1.0;
       }
 
-      float cubicOut(float t) {
-        float f = t - 1.0;
-        return f * f * f + 1.0;
-      }
-
       vec2 hash2(float seed) {
         float x = fract(sin(seed * 12.9898) * 43758.5453);
         float y = fract(sin((seed + x) * 78.233) * 43758.5453);
@@ -257,44 +252,60 @@
         vColor = mix(currentColor, nextColor, colorMix);
 
         // Skip background pixels (index 0)
-        float isVisible = step(0.5, currentIdx) * (1.0 - uProgress) + step(0.5, nextIdx) * uProgress;
+        // When uProgress=0: show current piece. When uProgress=1: show next piece.
+        float currentVisible = step(0.5, currentIdx);
+        float nextVisible = step(0.5, nextIdx);
+        float isVisible = mix(currentVisible, nextVisible, smoothstep(0.4, 0.6, uProgress));
         vAlpha = isVisible;
 
         // Base position in grid
+        float cellSize = ${(VOXEL_SIZE + VOXEL_GAP).toFixed(4)};
         vec3 basePos = vec3(
-          (aGridPos.x - 9.5) * ${VOXEL_SIZE + VOXEL_GAP},
-          (9.5 - aGridPos.y) * ${VOXEL_SIZE + VOXEL_GAP},
+          (aGridPos.x - 9.5) * cellSize,
+          (9.5 - aGridPos.y) * cellSize,
           0.0
         );
 
-        // Scatter animation
+        // Scatter position (used during transitions)
         vec2 randomDir = hash2(aRandomSeed);
         float scatterRange = 15.0 + hash(aRandomSeed) * 10.0;
         vec3 scatterPos = basePos + vec3(randomDir * scatterRange, hash(aRandomSeed + 1.0) * 10.0);
 
         // Radial stagger delay based on distance from center
         float staggerDelay = distFromCenter / 14.0 * 0.3;
-        float adjustedProgress = smoothstep(staggerDelay, staggerDelay + 0.7, uProgress);
 
-        // Elastic scale
-        float elasticT = elasticOut(adjustedProgress);
-        float scale = mix(0.0, 1.0, elasticT);
+        // When not transitioning (uTransition=0): fully assembled at basePos, scale=1
+        // When transitioning (uTransition=1): scatter out then reassemble based on uProgress
+        float scatterOut = smoothstep(0.0, 0.5, uProgress); // 0→1 in first half
+        float assembleIn = smoothstep(0.5, 1.0, uProgress);  // 0→1 in second half
 
-        // Position interpolation
-        vec3 pos = mix(scatterPos, basePos, cubicOut(uProgress));
+        // Staggered versions
+        float staggeredScatter = smoothstep(staggerDelay, staggerDelay + 0.4, scatterOut);
+        float staggeredAssemble = smoothstep(staggerDelay, staggerDelay + 0.4, assembleIn);
 
-        // Idle floating animation
+        // During transition: assembled → scattered → assembled
+        float displacement = staggeredScatter * (1.0 - staggeredAssemble);
+        
+        // Mix between transition behavior and idle (assembled)
+        float activeDisplacement = displacement * uTransition;
+        vec3 pos = mix(basePos, scatterPos, activeDisplacement);
+
+        // Scale: 1 when assembled, 0 when scattered
+        float scale = 1.0 - activeDisplacement * 0.5;
+        float elasticScale = mix(scale, elasticOut(staggeredAssemble) * (1.0 - displacement * 0.3), uTransition);
+
+        // Idle floating animation (only when not transitioning)
         float idlePhase = hash(aRandomSeed) * TAU + uIdleTime * 2.0;
         float idleAmp = 0.05 * (1.0 - uTransition);
         pos.y += sin(idlePhase) * idleAmp;
         pos.x += cos(idlePhase * 0.7) * idleAmp * 0.5;
 
-        // Grid tilt on assemble
-        float tiltAmount = sin(uProgress * TAU) * 0.1 * (1.0 - uTransition);
-        pos.z += tiltAmount * distFromCenter;
+        // Grid tilt during transition
+        float tiltAmount = sin(uProgress * TAU) * 0.08 * uTransition;
+        pos.z += tiltAmount * distFromCenter * 0.1;
 
         // Apply scale
-        vec3 finalPos = pos * GRID_SCALE;
+        vec3 finalPos = pos * ${GRID_SCALE};
 
         // Mouse parallax
         finalPos.x += uMouse.x * 2.0;
@@ -302,9 +313,9 @@
 
         gl_Position = projectionMatrix * modelViewMatrix * vec4(finalPos, 1.0);
         
-        // Set instance scale
-        float instanceScale = scale * ${VOXEL_SIZE};
-        gl_PointSize = instanceScale * 20.0 * (1000.0 / gl_Position.w);
+        // Point size based on scale
+        float pointScale = max(elasticScale, 0.01) * ${VOXEL_SIZE};
+        gl_PointSize = pointScale * 20.0 * (1000.0 / gl_Position.w);
       }
     `;
 
@@ -390,7 +401,7 @@
     geometry.setAttribute('aRandomSeed', new THREE.BufferAttribute(randomSeeds, 1));
 
     const material = new THREE.ShaderMaterial({
-      vertexShader: vertexShader.replace('GRID_SCALE', GRID_SCALE.toFixed(2)),
+      vertexShader,
       fragmentShader,
       uniforms: {
         uTime: { value: 0 },
