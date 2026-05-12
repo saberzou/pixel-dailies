@@ -111,49 +111,48 @@
 
     .stamp-card {
       position: relative;
-      background: var(--stamp-bg);
-      padding: 10px 10px 8px;
-      --r: 5px;
-      --sp: 13px;
-      -webkit-mask:
-        radial-gradient(circle var(--r) at center, #0000 calc(var(--r) - 0.5px), #000 var(--r)) 0 0      / var(--sp) calc(var(--r) * 2) repeat-x,
-        radial-gradient(circle var(--r) at center, #0000 calc(var(--r) - 0.5px), #000 var(--r)) 0 100%   / var(--sp) calc(var(--r) * 2) repeat-x,
-        radial-gradient(circle var(--r) at center, #0000 calc(var(--r) - 0.5px), #000 var(--r)) 0 0      / calc(var(--r) * 2) var(--sp) repeat-y,
-        radial-gradient(circle var(--r) at center, #0000 calc(var(--r) - 0.5px), #000 var(--r)) 100% 0   / calc(var(--r) * 2) var(--sp) repeat-y,
-        linear-gradient(#000, #000) center / calc(100% - var(--r) * 2 + 1px) calc(100% - var(--r) * 2 + 1px) no-repeat;
-              mask:
-        radial-gradient(circle var(--r) at center, #0000 calc(var(--r) - 0.5px), #000 var(--r)) 0 0      / var(--sp) calc(var(--r) * 2) repeat-x,
-        radial-gradient(circle var(--r) at center, #0000 calc(var(--r) - 0.5px), #000 var(--r)) 0 100%   / var(--sp) calc(var(--r) * 2) repeat-x,
-        radial-gradient(circle var(--r) at center, #0000 calc(var(--r) - 0.5px), #000 var(--r)) 0 0      / calc(var(--r) * 2) var(--sp) repeat-y,
-        radial-gradient(circle var(--r) at center, #0000 calc(var(--r) - 0.5px), #000 var(--r)) 100% 0   / calc(var(--r) * 2) var(--sp) repeat-y,
-        linear-gradient(#000, #000) center / calc(100% - var(--r) * 2 + 1px) calc(100% - var(--r) * 2 + 1px) no-repeat;
+      width: 100%;
+      /* Frame PNG dictates aspect (892x1201 ≈ 0.743) */
+      aspect-ratio: 892 / 1201;
+      background: transparent;
+      background-image: url('assets/stamp-frame.png');
+      background-size: 100% 100%;
+      background-repeat: no-repeat;
       filter:
-        drop-shadow(0 1px 0 rgba(0,0,0,0.10))
         drop-shadow(0 5px 9px rgba(0,0,0,0.30))
         drop-shadow(0 12px 18px rgba(0,0,0,0.18));
     }
     .stamp.dragging .stamp-card {
       filter:
-        drop-shadow(0 1px 0 rgba(0,0,0,0.10))
         drop-shadow(0 12px 22px rgba(0,0,0,0.40))
         drop-shadow(0 24px 36px rgba(0,0,0,0.25));
+    }
+
+    /* Inner content slotted into the cream interior */
+    .stamp-inner {
+      position: absolute;
+      /* Insets tuned to the perforation frame */
+      top: 7%; bottom: 7%; left: 7%; right: 7%;
+      display: flex;
+      flex-direction: column;
+      gap: 4%;
     }
 
     .stamp-art {
       width: 100%;
       aspect-ratio: 1 / 1;
       display: block;
-      background: #eee;
+      background: transparent;
       image-rendering: pixelated;
       image-rendering: crisp-edges;
-      border-radius: 2px;
       pointer-events: none;
     }
 
     .stamp-meta {
-      margin-top: 6px;
+      flex: 1;
+      min-height: 0;
       display: flex;
-      align-items: flex-end;
+      align-items: center;
       justify-content: space-between;
       gap: 6px;
       padding: 0 2px;
@@ -216,7 +215,7 @@
     }
     .modal.open { display: flex; opacity: 1; }
     .modal .stamp { position: static; width: min(70vmin, 480px); cursor: default; }
-    .modal .stamp-card { padding: 22px 22px 16px; --r: 9px; --sp: 22px; transform: rotate(-1.5deg); }
+    .modal .stamp-card { aspect-ratio: 892 / 1201; transform: rotate(-1.5deg); }
     .modal .stamp-num { font-size: 2.4rem; }
     .modal .stamp-title { font-size: 1.3rem; max-width: 70%; }
     .modal .stamp-date { font-size: 0.85rem; }
@@ -274,9 +273,9 @@
 
   <script src="data.js"></script>
   <script>
-    const STORAGE_KEY = 'pixel-dailies-positions-v2';
+    const STORAGE_KEY = 'pixel-dailies-positions-v3';
     const STAMP_W = 180;
-    const STAMP_H_EST = 232; // approx including meta row
+    const STAMP_H_EST = 280; // matches frame aspect 892:1201
     const HEADER_H = 80;
 
     const pieces = gallery
@@ -397,13 +396,15 @@
       wrap.innerHTML = `
         <div class="stamp-card">
           <div class="pin ${pinClass}"></div>
-          <canvas class="stamp-art"></canvas>
-          <div class="stamp-meta">
-            <div>
-              <div class="stamp-title">${escapeHtml(piece.title || '—')}</div>
-              <div class="stamp-date">${piece.date}</div>
+          <div class="stamp-inner">
+            <canvas class="stamp-art"></canvas>
+            <div class="stamp-meta">
+              <div>
+                <div class="stamp-title">${escapeHtml(piece.title || '—')}</div>
+                <div class="stamp-date">${piece.date}</div>
+              </div>
+              <div class="stamp-num">${dailyNum}</div>
             </div>
-            <div class="stamp-num">${dailyNum}</div>
           </div>
         </div>
       `;
@@ -475,13 +476,15 @@
         <div class="stamp">
           <div class="stamp-card">
             <div class="pin"></div>
-            <canvas class="stamp-art"></canvas>
-            <div class="stamp-meta">
-              <div>
-                <div class="stamp-title">${escapeHtml(piece.title || '—')}</div>
-                <div class="stamp-date">${piece.date}</div>
+            <div class="stamp-inner">
+              <canvas class="stamp-art"></canvas>
+              <div class="stamp-meta">
+                <div>
+                  <div class="stamp-title">${escapeHtml(piece.title || '—')}</div>
+                  <div class="stamp-date">${piece.date}</div>
+                </div>
+                <div class="stamp-num">${dailyNum}</div>
               </div>
-              <div class="stamp-num">${dailyNum}</div>
             </div>
           </div>
         </div>
