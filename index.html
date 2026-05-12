@@ -280,7 +280,7 @@
 
   <script src="data.js"></script>
   <script>
-    const STORAGE_KEY = 'pixel-dailies-positions-v4';
+    const STORAGE_KEY = 'pixel-dailies-positions-v5';
     const STAMP_W = 180;
     const STAMP_H_EST = 280; // matches frame aspect 892:1201
     const HEADER_H = 80;
@@ -343,8 +343,8 @@
       const stampW = isMobile ? 140 : STAMP_W;
       const stampH = isMobile ? Math.round(140 * 1201 / 892) + 4 : STAMP_H_EST;
       const margin = isMobile ? 12 : 24;
-      const padX = isMobile ? 14 : 22;
-      const padY = isMobile ? 22 : 30;
+      const padX = isMobile ? 24 : 44;
+      const padY = isMobile ? 36 : 56;
       const cellW = stampW + padX;
       const cellH = stampH + padY;
       // Mobile: force 2 columns. Desktop/tablet: fit naturally, capped at 4.
