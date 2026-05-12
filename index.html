@@ -272,7 +272,7 @@
 
   <script src="data.js"></script>
   <script>
-    const STORAGE_KEY = 'pixel-dailies-positions-v3';
+    const STORAGE_KEY = 'pixel-dailies-positions-v4';
     const STAMP_W = 180;
     const STAMP_H_EST = 280; // matches frame aspect 892:1201
     const HEADER_H = 80;
@@ -331,21 +331,26 @@
     function defaultLayout(count) {
       const map = {};
       const W = window.innerWidth;
-      const H = window.innerHeight;
-      const margin = 24;
-      const padX = 22;
-      const padY = 30;
-      const cellW = STAMP_W + padX;
-      const cellH = STAMP_H_EST + padY;
-      const cols = Math.max(2, Math.min(4, Math.floor((W - margin * 2) / cellW)));
+      const isMobile = W <= 720;
+      const stampW = isMobile ? 140 : STAMP_W;
+      const stampH = isMobile ? Math.round(140 * 1201 / 892) + 4 : STAMP_H_EST;
+      const margin = isMobile ? 12 : 24;
+      const padX = isMobile ? 14 : 22;
+      const padY = isMobile ? 22 : 30;
+      const cellW = stampW + padX;
+      const cellH = stampH + padY;
+      // Mobile: force 2 columns. Desktop/tablet: fit naturally, capped at 4.
+      const cols = isMobile
+        ? 2
+        : Math.max(2, Math.min(4, Math.floor((W - margin * 2) / cellW)));
       const startX = (W - cols * cellW) / 2 + padX / 2;
       const startY = HEADER_H + 16;
       for (let i = 0; i < count; i++) {
         const col = i % cols;
         const row = Math.floor(i / cols);
         const seed = i + 1;
-        const jitterX = (rand(seed) - 0.5) * 18;
-        const jitterY = (rand(seed + 7) - 0.5) * 14;
+        const jitterX = (rand(seed) - 0.5) * (isMobile ? 10 : 18);
+        const jitterY = (rand(seed + 7) - 0.5) * (isMobile ? 8 : 14);
         const tilt = (rand(seed + 3) - 0.5) * 8;
         map[i] = {
           x: startX + col * cellW + jitterX,
