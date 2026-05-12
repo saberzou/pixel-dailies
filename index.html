@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600&family=Special+Elite&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -210,12 +211,10 @@
       justify-content: center;
       padding: 24px;
       z-index: 100;
-      opacity: 0;
-      transition: opacity 0.25s;
     }
-    .modal.open { display: flex; opacity: 1; }
+    .modal.open { display: flex; }
     .modal .stamp { position: static; width: min(70vmin, 480px); cursor: default; }
-    .modal .stamp-card { aspect-ratio: 892 / 1201; transform: rotate(-1.5deg); }
+    .modal .stamp-card { aspect-ratio: 892 / 1201; }
     .modal .stamp-num { font-size: 2.4rem; }
     .modal .stamp-title { font-size: 1.3rem; max-width: 70%; }
     .modal .stamp-date { font-size: 0.85rem; }
@@ -457,7 +456,7 @@
           savePositions(positions);
           fitBoard();
         } else {
-          openModal(piece);
+          openModal(piece, el);
         }
       }
       el.addEventListener('pointerup', end);
@@ -470,7 +469,7 @@
     const modalClose = document.getElementById('modalClose');
     let modalAnim = null;
 
-    function openModal(piece) {
+    function openModal(piece, sourceEl) {
       const dailyNum = piece._origIndex + 1;
       modalContent.innerHTML = `
         <div class="stamp">
@@ -501,11 +500,42 @@
         }, 1000 / fps);
       }
       modal.classList.add('open');
+
+      // ── GSAP entrance ──
+      const stampEl = modalContent.querySelector('.stamp');
+      // Compute the source stamp's center relative to viewport for a "fly in" feel
+      let fromX = 0, fromY = 0;
+      if (sourceEl) {
+        const r = sourceEl.getBoundingClientRect();
+        const cx = r.left + r.width / 2;
+        const cy = r.top + r.height / 2;
+        fromX = cx - window.innerWidth / 2;
+        fromY = cy - window.innerHeight / 2;
+      }
+
+      gsap.set(modal, { autoAlpha: 0 });
+      gsap.to(modal, { autoAlpha: 1, duration: 0.35, ease: 'power2.out' });
+
+      gsap.fromTo(stampEl,
+        { x: fromX * 0.35, y: fromY * 0.35, scale: 0.25, rotate: -18, autoAlpha: 0 },
+        { x: 0, y: 0, scale: 1, rotate: -1.5, autoAlpha: 1, duration: 0.9, ease: 'elastic.out(1, 0.55)' }
+      );
     }
 
     function closeModal() {
-      modal.classList.remove('open');
-      if (modalAnim) { clearInterval(modalAnim); modalAnim = null; }
+      const stampEl = modalContent.querySelector('.stamp');
+      if (!stampEl) { modal.classList.remove('open'); return; }
+      gsap.to(stampEl, { scale: 0.6, rotate: 6, autoAlpha: 0, duration: 0.28, ease: 'power2.in' });
+      gsap.to(modal, {
+        autoAlpha: 0,
+        duration: 0.3,
+        ease: 'power2.in',
+        onComplete: () => {
+          modal.classList.remove('open');
+          gsap.set(modal, { clearProps: 'opacity,visibility' });
+          if (modalAnim) { clearInterval(modalAnim); modalAnim = null; }
+        }
+      });
     }
 
     modalClose.addEventListener('click', closeModal);
