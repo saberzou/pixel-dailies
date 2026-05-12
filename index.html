@@ -2,686 +2,400 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Pixel Dailies - Daily Pixel Art</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pixel Dailies — Cork Board</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600&family=Special+Elite&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    
+
+    :root {
+      --cork-1: #c9a36b;
+      --cork-2: #b08855;
+      --cork-3: #8a6840;
+      --stamp-bg: #fafafa;
+      --stamp-ink: #2a2a2a;
+      --stamp-sub: #888;
+    }
+
+    html, body { min-height: 100%; }
+
     body {
-      overflow: hidden;
       font-family: 'Jost', sans-serif;
-      background: #0a0a0f;
-      color: #fff;
-      touch-action: none;
+      color: #2a2a2a;
+      /* Cork board: warm tan base + speckle noise + soft vignette */
+      background-color: #b58a55;
+      background-image:
+        radial-gradient(ellipse at 50% 25%, rgba(255,235,200,0.22), transparent 65%),
+        radial-gradient(ellipse at 80% 90%, rgba(0,0,0,0.30), transparent 70%),
+        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='320' height='320'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='2.4' numOctaves='2' seed='11' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.32  0 0 0 0 0.18  0 0 0 0 0.08  0 0 0 0.85 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>"),
+        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='b'><feTurbulence type='turbulence' baseFrequency='0.5' numOctaves='3' seed='5' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.55  0 0 0 0 0.38  0 0 0 0 0.22  0 0 0 0.55 0'/></filter><rect width='100%25' height='100%25' filter='url(%23b)'/></svg>"),
+        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='h'><feTurbulence type='fractalNoise' baseFrequency='3' numOctaves='1' seed='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 0.88  0 0 0 0 0.6  0 0 0 0.22 0'/></filter><rect width='100%25' height='100%25' filter='url(%23h)'/></svg>");
+      background-blend-mode: normal, multiply, multiply, multiply, screen;
+      background-size: auto, auto, 320px 320px, 220px 220px, 160px 160px;
+      min-height: 100vh;
+      padding: 88px 24px 64px;
     }
 
     .header {
       position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 10;
-      text-align: center;
-      padding: 2rem 1.5rem 1rem;
-      pointer-events: none;
-      mix-blend-mode: difference;
+      top: 16px; left: 24px; right: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      z-index: 50;
+      padding: 10px 18px;
+      background: rgba(255,255,255,0.55);
+      backdrop-filter: blur(14px) saturate(140%);
+      -webkit-backdrop-filter: blur(14px) saturate(140%);
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.6);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.18);
     }
-
-    .site-title {
-      font-size: 1.5rem;
+    .header h1 {
+      font-size: 1rem;
       font-weight: 500;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
-      color: #fff;
+      color: #3a2a18;
     }
-
-    .site-subtitle {
-      font-size: 0.8rem;
-      color: rgba(255,255,255,0.6);
+    .header .sub {
+      font-size: 0.78rem;
+      letter-spacing: 0.04em;
+      color: #5a4632;
       font-weight: 300;
-      margin-top: 0.3rem;
-      letter-spacing: 0.05em;
+    }
+    .header .count {
+      font-family: 'Special Elite', monospace;
+      font-size: 0.85rem;
+      color: #5a4632;
     }
 
-    #canvas-container {
+    /* Masonry-ish board via CSS columns */
+    .board {
+      column-count: 5;
+      column-gap: 28px;
+      max-width: 1500px;
+      margin: 0 auto;
+    }
+    @media (max-width: 1280px) { .board { column-count: 4; } }
+    @media (max-width: 980px)  { .board { column-count: 3; } }
+    @media (max-width: 680px)  { .board { column-count: 2; column-gap: 18px; } }
+    @media (max-width: 420px)  { .board { column-count: 1; } }
+
+    /* Stamp tile */
+    .stamp {
+      break-inside: avoid;
+      margin: 0 0 32px;
+      display: inline-block;
+      width: 100%;
+      cursor: pointer;
+      transition: transform 0.25s cubic-bezier(.2,.7,.3,1.4), filter 0.2s;
+      transform-origin: center center;
+      will-change: transform;
+    }
+    .stamp:hover { transform: var(--tilt-hover) !important; filter: brightness(1.04); z-index: 10; }
+    .stamp:active { transform: var(--tilt) scale(0.98) !important; }
+
+    .stamp-card {
+      position: relative;
+      background: var(--stamp-bg);
+      padding: 18px 18px 14px;
+      /* Stamp perforations: only along the four edges.
+         Four edge stripes (each with tiled circular holes) plus a solid inner rect.
+         Union (default mask-composite: add) covers the whole card except the holes. */
+      --r: 6px;
+      --sp: 16px;
+      -webkit-mask:
+        radial-gradient(circle var(--r) at center, #0000 calc(var(--r) - 0.5px), #000 var(--r)) 0 0      / var(--sp) calc(var(--r) * 2) repeat-x,
+        radial-gradient(circle var(--r) at center, #0000 calc(var(--r) - 0.5px), #000 var(--r)) 0 100%   / var(--sp) calc(var(--r) * 2) repeat-x,
+        radial-gradient(circle var(--r) at center, #0000 calc(var(--r) - 0.5px), #000 var(--r)) 0 0      / calc(var(--r) * 2) var(--sp) repeat-y,
+        radial-gradient(circle var(--r) at center, #0000 calc(var(--r) - 0.5px), #000 var(--r)) 100% 0   / calc(var(--r) * 2) var(--sp) repeat-y,
+        linear-gradient(#000, #000) center / calc(100% - var(--r) * 2 + 1px) calc(100% - var(--r) * 2 + 1px) no-repeat;
+              mask:
+        radial-gradient(circle var(--r) at center, #0000 calc(var(--r) - 0.5px), #000 var(--r)) 0 0      / var(--sp) calc(var(--r) * 2) repeat-x,
+        radial-gradient(circle var(--r) at center, #0000 calc(var(--r) - 0.5px), #000 var(--r)) 0 100%   / var(--sp) calc(var(--r) * 2) repeat-x,
+        radial-gradient(circle var(--r) at center, #0000 calc(var(--r) - 0.5px), #000 var(--r)) 0 0      / calc(var(--r) * 2) var(--sp) repeat-y,
+        radial-gradient(circle var(--r) at center, #0000 calc(var(--r) - 0.5px), #000 var(--r)) 100% 0   / calc(var(--r) * 2) var(--sp) repeat-y,
+        linear-gradient(#000, #000) center / calc(100% - var(--r) * 2 + 1px) calc(100% - var(--r) * 2 + 1px) no-repeat;
+      filter:
+        drop-shadow(0 1px 0 rgba(0,0,0,0.10))
+        drop-shadow(0 6px 12px rgba(0,0,0,0.30))
+        drop-shadow(0 16px 24px rgba(0,0,0,0.18));
+    }
+
+    .stamp-art {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      display: block;
+      background: #eee;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      border-radius: 2px;
+    }
+
+    .stamp-meta {
+      margin-top: 10px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 0 2px;
+    }
+    .stamp-title {
+      font-family: 'Special Elite', monospace;
+      font-size: 0.95rem;
+      color: var(--stamp-ink);
+      line-height: 1.1;
+      max-width: 60%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .stamp-date {
+      font-family: 'Special Elite', monospace;
+      font-size: 0.7rem;
+      color: var(--stamp-sub);
+      letter-spacing: 0.04em;
+    }
+    .stamp-num {
+      font-family: 'Special Elite', monospace;
+      font-weight: 700;
+      font-size: 1.6rem;
+      color: var(--stamp-ink);
+      line-height: 1;
+      margin-left: auto;
+    }
+
+    /* Pin in the top center of each stamp */
+    .pin {
+      position: absolute;
+      top: -6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #ff8a8a, #c0392b 65%, #6b1d12 100%);
+      box-shadow:
+        0 0 0 1px rgba(0,0,0,0.18),
+        0 4px 6px rgba(0,0,0,0.35);
+      z-index: 5;
+      pointer-events: none;
+    }
+    .pin.blue   { background: radial-gradient(circle at 30% 30%, #8ecbff, #2b6ec0 65%, #123c6b 100%); }
+    .pin.yellow { background: radial-gradient(circle at 30% 30%, #ffe58a, #c0962b 65%, #6b4a12 100%); }
+    .pin.green  { background: radial-gradient(circle at 30% 30%, #a8e0a0, #3c9a3a 65%, #1f4a1d 100%); }
+
+    /* Modal */
+    .modal {
       position: fixed;
       inset: 0;
-      z-index: 1;
-    }
-
-    .overlay {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      z-index: 10;
-      padding: 2rem;
-      pointer-events: none;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      mix-blend-mode: difference;
-    }
-
-    .piece-info {
-      opacity: 1;
-      transition: opacity 0.3s ease;
-    }
-
-    .piece-info.fading {
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    .piece-title {
-      font-size: 2rem;
-      font-weight: 500;
-      letter-spacing: -0.02em;
-      color: #fff;
-      margin-bottom: 0.3rem;
-    }
-
-    .piece-date {
-      font-size: 0.85rem;
-      color: rgba(255,255,255,0.6);
-      font-weight: 300;
-    }
-
-    .piece-counter {
-      font-size: 0.9rem;
-      color: rgba(255,255,255,0.5);
-      font-weight: 300;
-      letter-spacing: 0.05em;
-    }
-
-    .scroll-hint {
-      position: fixed;
-      bottom: 50%;
-      right: 2rem;
-      transform: translateY(50%);
-      z-index: 10;
-      display: flex;
-      flex-direction: column;
+      background: rgba(20,12,5,0.6);
+      backdrop-filter: blur(8px);
+      display: none;
       align-items: center;
-      gap: 0.5rem;
-      opacity: 0.4;
-      mix-blend-mode: difference;
+      justify-content: center;
+      padding: 24px;
+      z-index: 100;
+      opacity: 0;
+      transition: opacity 0.25s;
+    }
+    .modal.open { display: flex; opacity: 1; }
+    .modal .stamp-card {
+      max-width: min(78vmin, 560px);
+      width: 100%;
+      padding: 22px 22px 16px;
+      --r: 9px;
+      transform: rotate(-1.5deg);
+    }
+    .modal .stamp-num { font-size: 2.6rem; }
+    .modal .stamp-title { font-size: 1.4rem; max-width: 70%; }
+    .modal .stamp-date { font-size: 0.9rem; }
+    .modal-close {
+      position: fixed;
+      top: 24px; right: 24px;
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.85);
+      border: none;
+      cursor: pointer;
+      font-size: 22px;
+      line-height: 1;
+      color: #2a2a2a;
+      z-index: 101;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.3);
     }
 
-    .scroll-line {
-      width: 1px;
-      height: 60px;
-      background: linear-gradient(to bottom, transparent, #fff, transparent);
-      animation: pulse 2s ease-in-out infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 0.3; }
-      50% { opacity: 1; }
-    }
-
-    @media (max-width: 768px) {
-      .site-title { font-size: 1.2rem; }
-      .piece-title { font-size: 1.5rem; }
-      .overlay { padding: 1.5rem; }
-      .scroll-hint { right: 1rem; }
+    .footer-note {
+      margin: 40px auto 0;
+      max-width: 600px;
+      text-align: center;
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.7);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
     }
   </style>
 </head>
 <body>
   <div class="header">
-    <h1 class="site-title">Pixel Dailies</h1>
-    <p class="site-subtitle">A new piece of pixel art, every day.</p>
-  </div>
-
-  <div id="canvas-container"></div>
-
-  <div class="overlay">
-    <div class="piece-info" id="pieceInfo">
-      <div class="piece-title" id="pieceTitle">Loading...</div>
-      <div class="piece-date" id="pieceDate"></div>
+    <div>
+      <h1>Pixel Dailies</h1>
+      <div class="sub">A new piece of pixel art, every day.</div>
     </div>
-    <div class="piece-counter" id="pieceCounter">1 / 1</div>
+    <div class="count" id="count">— pieces</div>
   </div>
 
-  <div class="scroll-hint">
-    <div class="scroll-line"></div>
+  <div class="board" id="board"></div>
+
+  <div class="footer-note">Tap a stamp to take a closer look.</div>
+
+  <div class="modal" id="modal" role="dialog" aria-modal="true">
+    <button class="modal-close" id="modalClose" aria-label="Close">×</button>
+    <div id="modalContent"></div>
   </div>
 
   <script src="data.js"></script>
-  <script type="module">
-    import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js';
-
-    // ── Configuration ──
-    const GRID_SIZE = 20;
-    const VOXEL_COUNT = GRID_SIZE * GRID_SIZE;
-    const VOXEL_GAP = 0.15;
-    const VOXEL_SIZE = 0.85;
-    const GRID_SCALE = 0.5;
-    const SCROLL_THRESHOLD = 50;
-    const TRANSITION_DURATION = 0.8;
-
-    // data.js uses `const gallery` which creates a global lexical binding
-    // accessible as `gallery` but NOT as `window.gallery` from modules
+  <script>
+    // Sort newest first; preserve original index as the daily number
     const pieces = gallery
-      .map((p, i) => ({ ...p, _index: i }))
+      .map((p, i) => ({ ...p, _origIndex: i }))
       .sort((a, b) => {
-        const dateDiff = new Date(b.date) - new Date(a.date);
-        return dateDiff !== 0 ? dateDiff : b._index - a._index;
+        const d = new Date(b.date) - new Date(a.date);
+        return d !== 0 ? d : b._origIndex - a._origIndex;
       });
 
-    // ── Scene setup ──
-    const container = document.getElementById('canvas-container');
-    const scene = new THREE.Scene();
-    
-    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
-    camera.position.z = 25;
+    document.getElementById('count').textContent = `${pieces.length} pieces`;
 
-    const renderer = new THREE.WebGLRenderer({ 
-      antialias: false, 
-      alpha: true,
-      powerPreference: 'high-performance'
-    });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    container.appendChild(renderer.domElement);
-
-    // ── Vertex Shader ──
-    const vertexShader = `
-      precision highp float;
-
-      attribute vec2 aGridPos;
-      attribute float aColorIndex;
-      attribute float aRandomSeed;
-
-      uniform float uTime;
-      uniform float uProgress;
-      uniform float uTransition;
-      uniform vec3 uCurrentPalette[16];
-      uniform vec3 uNextPalette[16];
-      uniform sampler2D uCurrentFrame;
-      uniform sampler2D uNextFrame;
-      uniform float uIdleTime;
-      uniform vec2 uMouse;
-      uniform float uScreenH;
-
-      varying vec3 vColor;
-      varying float vAlpha;
-
-      const float TAU = 6.28318530718;
-
-      // Elastic easing function
-      float elasticOut(float t) {
-        float dampExp = 10.0;
-        float p = 0.3;
-        if (t == 0.0) return 0.0;
-        if (t == 1.0) return 1.0;
-        return pow(2.0, -dampExp * t) * sin((t - p / 4.0) * TAU / p) + 1.0;
-      }
-
-      vec2 hash2(float seed) {
-        float x = fract(sin(seed * 12.9898) * 43758.5453);
-        float y = fract(sin((seed + x) * 78.233) * 43758.5453);
-        return vec2(x, y) * 2.0 - 1.0;
-      }
-
-      float hash(float seed) {
-        return fract(sin(seed * 12.9898) * 43758.5453);
-      }
-
-      void main() {
-        // Center of grid
-        vec2 center = vec2(9.5, 9.5);
-        vec2 toCenter = aGridPos - center;
-        float distFromCenter = length(toCenter);
-        float angle = atan(toCenter.y, toCenter.x);
-
-        // Sample color indices from textures
-        float u = (aGridPos.x + 0.5) / 20.0;
-        float v = (aGridPos.y + 0.5) / 20.0;
-        
-        float currentIdx = texture2D(uCurrentFrame, vec2(u, v)).r * 255.0;
-        float nextIdx = texture2D(uNextFrame, vec2(u, v)).r * 255.0;
-
-        // Get colors from palettes
-        vec3 currentColor = uCurrentPalette[int(currentIdx)];
-        vec3 nextColor = uNextPalette[int(nextIdx)];
-
-        // Crossfade colors based on progress
-        float colorMix = smoothstep(0.3, 0.7, uProgress);
-        vColor = mix(currentColor, nextColor, colorMix);
-
-        // Skip background pixels (index 0)
-        // When uProgress=0: show current piece. When uProgress=1: show next piece.
-        float currentVisible = step(0.5, currentIdx);
-        float nextVisible = step(0.5, nextIdx);
-        float isVisible = mix(currentVisible, nextVisible, smoothstep(0.4, 0.6, uProgress));
-        vAlpha = isVisible;
-
-        // Base position in grid
-        float cellSize = ${(VOXEL_SIZE + VOXEL_GAP).toFixed(4)};
-        vec3 basePos = vec3(
-          (aGridPos.x - 9.5) * cellSize,
-          (9.5 - aGridPos.y) * cellSize,
-          0.0
-        );
-
-        // Scatter position (used during transitions)
-        vec2 randomDir = hash2(aRandomSeed);
-        float scatterRange = 15.0 + hash(aRandomSeed) * 10.0;
-        vec3 scatterPos = basePos + vec3(randomDir * scatterRange, hash(aRandomSeed + 1.0) * 10.0);
-
-        // Radial stagger delay based on distance from center
-        float staggerDelay = distFromCenter / 14.0 * 0.3;
-
-        // When not transitioning (uTransition=0): fully assembled at basePos, scale=1
-        // When transitioning (uTransition=1): scatter out then reassemble based on uProgress
-        float scatterOut = smoothstep(0.0, 0.5, uProgress); // 0→1 in first half
-        float assembleIn = smoothstep(0.5, 1.0, uProgress);  // 0→1 in second half
-
-        // Staggered versions
-        float staggeredScatter = smoothstep(staggerDelay, staggerDelay + 0.4, scatterOut);
-        float staggeredAssemble = smoothstep(staggerDelay, staggerDelay + 0.4, assembleIn);
-
-        // During transition: assembled → scattered → assembled
-        float displacement = staggeredScatter * (1.0 - staggeredAssemble);
-        
-        // Mix between transition behavior and idle (assembled)
-        float activeDisplacement = displacement * uTransition;
-        vec3 pos = mix(basePos, scatterPos, activeDisplacement);
-
-        // Scale: 1 when assembled, 0 when scattered
-        float scale = 1.0 - activeDisplacement * 0.5;
-        float elasticScale = mix(scale, elasticOut(staggeredAssemble) * (1.0 - displacement * 0.3), uTransition);
-
-        // Idle floating animation (only when not transitioning)
-        float idlePhase = hash(aRandomSeed) * TAU + uIdleTime * 2.0;
-        float idleAmp = 0.05 * (1.0 - uTransition);
-        pos.y += sin(idlePhase) * idleAmp;
-        pos.x += cos(idlePhase * 0.7) * idleAmp * 0.5;
-
-        // Grid tilt during transition
-        float tiltAmount = sin(uProgress * TAU) * 0.08 * uTransition;
-        pos.z += tiltAmount * distFromCenter * 0.1;
-
-        // Apply scale
-        vec3 finalPos = pos * ${GRID_SCALE};
-
-        // Mouse parallax
-        finalPos.x += uMouse.x * 2.0;
-        finalPos.y += uMouse.y * 2.0;
-
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(finalPos, 1.0);
-        
-        // Point size based on scale
-        // Point size: match grid cell size in screen pixels
-        float worldCellSize = ${(VOXEL_SIZE * GRID_SCALE).toFixed(4)};
-        float projScale = projectionMatrix[1][1];
-        float pointPx = worldCellSize * projScale * uScreenH / gl_Position.w;
-        gl_PointSize = max(elasticScale, 0.01) * pointPx;
-      }
-    `;
-
-    // ── Fragment Shader ──
-    const fragmentShader = `
-      precision highp float;
-      
-      varying vec3 vColor;
-      varying float vAlpha;
-
-      void main() {
-        if (vAlpha < 0.01) discard;
-        
-        // Hard square — pixel art needs crisp edges
-        vec2 coord = abs(gl_PointCoord - vec2(0.5));
-        float maxCoord = max(coord.x, coord.y);
-        if (maxCoord > 0.45) discard;
-        
-        gl_FragColor = vec4(vColor, vAlpha);
-      }
-    `;
-
-    // ── Create frame textures ──
-    function createFrameTexture(frameData) {
-      const data = new Uint8Array(VOXEL_COUNT * 4);
-      for (let i = 0; i < VOXEL_COUNT; i++) {
-        const colorIdx = parseInt(frameData[i] || '0', 16);
-        data[i * 4] = colorIdx;
-        data[i * 4 + 1] = 0;
-        data[i * 4 + 2] = 0;
-        data[i * 4 + 3] = 255;
-      }
-      const texture = new THREE.DataTexture(data, GRID_SIZE, GRID_SIZE, THREE.RGBAFormat);
-      texture.needsUpdate = true;
-      texture.magFilter = THREE.NearestFilter;
-      texture.minFilter = THREE.NearestFilter;
-      return texture;
+    // Deterministic pseudo-random per index (so layout is stable across reloads)
+    function rand(seed) {
+      const x = Math.sin(seed * 9301 + 49297) * 233280;
+      return x - Math.floor(x);
     }
 
-    // ── Parse palette to vec3 array ──
-    function parsePalette(palette) {
-      const colors = [];
-      for (let i = 0; i < 16; i++) {
-        if (i < palette.length) {
-          const hex = palette[i].replace('#', '');
-          const r = parseInt(hex.substr(0, 2), 16) / 255;
-          const g = parseInt(hex.substr(2, 2), 16) / 255;
-          const b = parseInt(hex.substr(4, 2), 16) / 255;
-          colors.push(new THREE.Vector3(r, g, b));
-        } else {
-          colors.push(new THREE.Vector3(0, 0, 0));
+    // Render a 20x20 (or N) pixel art to a canvas
+    function renderPixelArt(canvas, piece) {
+      const size = piece.size || 20;
+      const scale = 16; // crisp blocks for the stamp
+      canvas.width = size * scale;
+      canvas.height = size * scale;
+      const ctx = canvas.getContext('2d');
+      ctx.imageSmoothingEnabled = false;
+
+      const frame = piece.frames[0];
+      const palette = piece.palette;
+
+      // Background: treat color index 0 as transparent-ish (paper)
+      ctx.fillStyle = palette[0] || '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      for (let y = 0; y < size; y++) {
+        for (let x = 0; x < size; x++) {
+          const idx = parseInt(frame[y * size + x] || '0', 16);
+          if (isNaN(idx)) continue;
+          const color = palette[idx] || palette[0];
+          ctx.fillStyle = color;
+          ctx.fillRect(x * scale, y * scale, scale, scale);
         }
       }
-      return colors;
     }
 
-    // ── Create instanced mesh ──
-    const geometry = new THREE.BufferGeometry();
-    
-    // Grid positions
-    const gridPositions = new Float32Array(VOXEL_COUNT * 2);
-    const colorIndices = new Float32Array(VOXEL_COUNT);
-    const randomSeeds = new Float32Array(VOXEL_COUNT);
+    const board = document.getElementById('board');
+    const pinColors = ['', 'blue', 'yellow', 'green'];
 
-    let idx = 0;
-    for (let y = 0; y < GRID_SIZE; y++) {
-      for (let x = 0; x < GRID_SIZE; x++) {
-        gridPositions[idx * 2] = x;
-        gridPositions[idx * 2 + 1] = y;
-        colorIndices[idx] = 0;
-        randomSeeds[idx] = Math.random() * 1000;
-        idx++;
-      }
-    }
+    pieces.forEach((piece, i) => {
+      const seed = piece._origIndex + 1;
+      const tilt = (rand(seed) - 0.5) * 6;        // -3 to +3 deg
+      const offsetY = (rand(seed + 1) - 0.5) * 14; // tiny vertical jitter
+      const hoverTilt = tilt * 0.3;
 
-    // Points need a position attribute (we compute actual position in shader, so zeros are fine)
-    const positions = new Float32Array(VOXEL_COUNT * 3);
-    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    geometry.setAttribute('aGridPos', new THREE.BufferAttribute(gridPositions, 2));
-    geometry.setAttribute('aColorIndex', new THREE.BufferAttribute(colorIndices, 1));
-    geometry.setAttribute('aRandomSeed', new THREE.BufferAttribute(randomSeeds, 1));
+      const wrap = document.createElement('div');
+      wrap.className = 'stamp';
+      wrap.style.setProperty('--tilt', `rotate(${tilt.toFixed(2)}deg) translateY(${offsetY.toFixed(1)}px)`);
+      wrap.style.setProperty('--tilt-hover', `rotate(${hoverTilt.toFixed(2)}deg) translateY(${(offsetY - 6).toFixed(1)}px) scale(1.04)`);
+      wrap.style.transform = `var(--tilt)`;
 
-    const material = new THREE.ShaderMaterial({
-      vertexShader,
-      fragmentShader,
-      uniforms: {
-        uTime: { value: 0 },
-        uProgress: { value: 0 },
-        uTransition: { value: 0 },
-        uCurrentPalette: { value: parsePalette(pieces[0]?.palette || ['#000']) },
-        uNextPalette: { value: parsePalette(pieces[0]?.palette || ['#000']) },
-        uCurrentFrame: { value: createFrameTexture(pieces[0]?.frames?.[0] || '') },
-        uNextFrame: { value: createFrameTexture(pieces[0]?.frames?.[0] || '') },
-        uIdleTime: { value: 0 },
-        uMouse: { value: new THREE.Vector2(0, 0) },
-        uScreenH: { value: window.innerHeight }
-      },
-      transparent: true,
-      depthWrite: false,
-      blending: THREE.NormalBlending
+      const pinClass = pinColors[Math.floor(rand(seed + 2) * pinColors.length)];
+      const dailyNum = piece._origIndex + 1;
+
+      wrap.innerHTML = `
+        <div class="stamp-card">
+          <div class="pin ${pinClass}"></div>
+          <canvas class="stamp-art"></canvas>
+          <div class="stamp-meta">
+            <div>
+              <div class="stamp-title">${escapeHtml(piece.title || '—')}</div>
+              <div class="stamp-date">${piece.date}</div>
+            </div>
+            <div class="stamp-num">${dailyNum}</div>
+          </div>
+        </div>
+      `;
+
+      const canvas = wrap.querySelector('canvas');
+      renderPixelArt(canvas, piece);
+
+      wrap.addEventListener('click', () => openModal(piece));
+      board.appendChild(wrap);
     });
 
-    // Use points for better performance
-    const mesh = new THREE.Points(geometry, material);
-    scene.add(mesh);
-
-    // ── State management ──
-    let currentIndex = 0;
-    let targetIndex = 0;
-    let transitionProgress = 0;
-    let isTransitioning = false;
-    let scrollAccumulator = 0;
-    let lastScrollTime = 0;
-    let idleTime = 0;
-    let mouseX = 0;
-    let mouseY = 0;
-    let targetMouseX = 0;
-    let targetMouseY = 0;
-
-    // ── Background plane for smooth color transitions ──
-    const bgGeometry = new THREE.PlaneGeometry(200, 200);
-    const bgMaterial = new THREE.ShaderMaterial({
-      vertexShader: `
-        void main() {
-          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-        }
-      `,
-      fragmentShader: `
-        uniform vec3 uColor1;
-        uniform vec3 uColor2;
-        uniform float uMix;
-        void main() {
-          vec3 color = mix(uColor1, uColor2, uMix);
-          gl_FragColor = vec4(color, 1.0);
-        }
-      `,
-      uniforms: {
-        uColor1: { value: new THREE.Color(pieces[0]?.palette[0] || '#0a0a0f') },
-        uColor2: { value: new THREE.Color(pieces[0]?.palette[0] || '#0a0a0f') },
-        uMix: { value: 0 }
-      },
-      depthWrite: false
-    });
-    const bgMesh = new THREE.Mesh(bgGeometry, bgMaterial);
-    bgMesh.position.z = -10;
-    scene.add(bgMesh);
-
-    // ── Update piece display ──
-    function updateDisplay(index, animate = true) {
-      const piece = pieces[index];
-      const titleEl = document.getElementById('pieceTitle');
-      const dateEl = document.getElementById('pieceDate');
-      const counterEl = document.getElementById('pieceCounter');
-      const infoEl = document.getElementById('pieceInfo');
-
-      if (animate) {
-        infoEl.classList.add('fading');
-        setTimeout(() => {
-          titleEl.textContent = piece.title;
-          dateEl.textContent = piece.date;
-          counterEl.textContent = `${index + 1} / ${pieces.length}`;
-          requestAnimationFrame(() => {
-            infoEl.classList.remove('fading');
-          });
-        }, 350);
-      } else {
-        titleEl.textContent = piece.title;
-        dateEl.textContent = piece.date;
-        counterEl.textContent = `${index + 1} / ${pieces.length}`;
-      }
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, c => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[c]));
     }
 
-    // ── Start transition ──
-    function startTransition(newIndex) {
-      if (newIndex === currentIndex || newIndex < 0 || newIndex >= pieces.length) return;
-      
-      targetIndex = newIndex;
-      isTransitioning = true;
-      transitionProgress = 0;
+    // ── Modal with frame animation ──
+    const modal = document.getElementById('modal');
+    const modalContent = document.getElementById('modalContent');
+    const modalClose = document.getElementById('modalClose');
+    let modalAnim = null;
 
-      const currentPiece = pieces[currentIndex];
-      const nextPiece = pieces[targetIndex];
-
-      // Update shader uniforms
-      material.uniforms.uCurrentPalette.value = parsePalette(currentPiece.palette);
-      material.uniforms.uNextPalette.value = parsePalette(nextPiece.palette);
-      material.uniforms.uCurrentFrame.value = createFrameTexture(currentPiece.frames[0]);
-      material.uniforms.uNextFrame.value = createFrameTexture(nextPiece.frames[0]);
-      material.uniforms.uProgress.value = 0;
-      material.uniforms.uTransition.value = 1;
-
-      // Background colors
-      bgMaterial.uniforms.uColor1.value = new THREE.Color(currentPiece.palette[0]);
-      bgMaterial.uniforms.uColor2.value = new THREE.Color(nextPiece.palette[0]);
-      bgMaterial.uniforms.uMix.value = 0;
-
-      updateDisplay(targetIndex);
+    function openModal(piece) {
+      const dailyNum = piece._origIndex + 1;
+      modalContent.innerHTML = `
+        <div class="stamp">
+          <div class="stamp-card">
+            <div class="pin"></div>
+            <canvas class="stamp-art"></canvas>
+            <div class="stamp-meta">
+              <div>
+                <div class="stamp-title">${escapeHtml(piece.title || '—')}</div>
+                <div class="stamp-date">${piece.date}</div>
+              </div>
+              <div class="stamp-num">${dailyNum}</div>
+            </div>
+          </div>
+        </div>
+      `;
+      const canvas = modalContent.querySelector('canvas');
+      // Animate frames if more than one
+      let frameIdx = 0;
+      function draw() {
+        renderPixelArt(canvas, { ...piece, frames: [piece.frames[frameIdx]] });
+      }
+      draw();
+      if (piece.frames.length > 1) {
+        const fps = piece.fps || 4;
+        modalAnim = setInterval(() => {
+          frameIdx = (frameIdx + 1) % piece.frames.length;
+          draw();
+        }, 1000 / fps);
+      }
+      modal.classList.add('open');
     }
 
-    // ── Complete transition ──
-    function completeTransition() {
-      currentIndex = targetIndex;
-      isTransitioning = false;
-      transitionProgress = 0;
-      material.uniforms.uTransition.value = 0;
-      
-      // Set final state
-      const piece = pieces[currentIndex];
-      material.uniforms.uCurrentPalette.value = parsePalette(piece.palette);
-      material.uniforms.uNextPalette.value = parsePalette(piece.palette);
-      material.uniforms.uCurrentFrame.value = createFrameTexture(piece.frames[0]);
-      material.uniforms.uNextFrame.value = createFrameTexture(piece.frames[0]);
-      material.uniforms.uProgress.value = 0;
-      
-      bgMaterial.uniforms.uColor1.value = new THREE.Color(piece.palette[0]);
-      bgMaterial.uniforms.uColor2.value = new THREE.Color(piece.palette[0]);
-      bgMaterial.uniforms.uMix.value = 0;
+    function closeModal() {
+      modal.classList.remove('open');
+      if (modalAnim) { clearInterval(modalAnim); modalAnim = null; }
     }
 
-    // ── Input handling ──
-    function handleScroll(delta) {
-      const now = performance.now();
-      if (now - lastScrollTime < 100) return;
-      lastScrollTime = now;
-
-      scrollAccumulator += delta;
-      
-      if (Math.abs(scrollAccumulator) > SCROLL_THRESHOLD) {
-        const direction = scrollAccumulator > 0 ? 1 : -1;
-        const newIndex = currentIndex + direction;
-        
-        if (newIndex >= 0 && newIndex < pieces.length && !isTransitioning) {
-          startTransition(newIndex);
-        }
-        scrollAccumulator = 0;
-      }
-
-      // Decay accumulator
-      setTimeout(() => { scrollAccumulator *= 0.5; }, 100);
-    }
-
-    // Wheel
-    let wheelTimeout;
-    window.addEventListener('wheel', (e) => {
-      e.preventDefault();
-      handleScroll(e.deltaY);
-      
-      // Reset idle on interaction
-      idleTime = 0;
-      clearTimeout(wheelTimeout);
-      wheelTimeout = setTimeout(() => {}, 150);
-    }, { passive: false });
-
-    // Touch
-    let touchStartY = 0;
-    let touchStartTime = 0;
-    window.addEventListener('touchstart', (e) => {
-      touchStartY = e.touches[0].clientY;
-      touchStartTime = performance.now();
-      idleTime = 0;
-    }, { passive: true });
-
-    window.addEventListener('touchmove', (e) => {
-      e.preventDefault();
-    }, { passive: false });
-
-    window.addEventListener('touchend', (e) => {
-      const touchEndY = e.changedTouches[0].clientY;
-      const touchDuration = performance.now() - touchStartTime;
-      const deltaY = touchStartY - touchEndY;
-      
-      // Swipe detection
-      if (Math.abs(deltaY) > 50 && touchDuration < 300) {
-        handleScroll(deltaY * 5);
-      }
-    }, { passive: true });
-
-    // Keyboard
-    window.addEventListener('keydown', (e) => {
-      idleTime = 0;
-      if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
-        if (currentIndex < pieces.length - 1 && !isTransitioning) {
-          startTransition(currentIndex + 1);
-        }
-      } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
-        if (currentIndex > 0 && !isTransitioning) {
-          startTransition(currentIndex - 1);
-        }
-      }
-    });
-
-    // Mouse movement for parallax
-    window.addEventListener('mousemove', (e) => {
-      targetMouseX = (e.clientX / window.innerWidth - 0.5) * 2;
-      targetMouseY = -(e.clientY / window.innerHeight - 0.5) * 2;
-    });
-
-    // ── Animation loop ──
-    let lastTime = performance.now();
-
-    function animate() {
-      requestAnimationFrame(animate);
-
-      const now = performance.now();
-      const dt = Math.min((now - lastTime) / 1000, 0.1);
-      lastTime = now;
-
-      // Update transition
-      if (isTransitioning) {
-        transitionProgress += dt / TRANSITION_DURATION;
-        
-        if (transitionProgress >= 1) {
-          completeTransition();
-        } else {
-          material.uniforms.uProgress.value = transitionProgress;
-          bgMaterial.uniforms.uMix.value = transitionProgress;
-        }
-      }
-
-      // Idle time
-      idleTime += dt;
-      material.uniforms.uIdleTime.value = idleTime;
-
-      // Mouse parallax smoothing
-      mouseX += (targetMouseX - mouseX) * 0.05;
-      mouseY += (targetMouseY - mouseY) * 0.05;
-      material.uniforms.uMouse.value.set(mouseX * 0.02, mouseY * 0.02);
-
-      // Camera gentle drift
-      camera.position.x = Math.sin(now * 0.0003) * 0.5;
-      camera.position.y = Math.cos(now * 0.0002) * 0.3;
-      camera.lookAt(0, 0, 0);
-
-      renderer.render(scene, camera);
-    }
-
-    // ── Resize handling ──
-    window.addEventListener('resize', () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      material.uniforms.uScreenH.value = window.innerHeight;
-    });
-
-    // ── Initialize ──
-    updateDisplay(0, false);
-    animate();
-
-    // Hide scroll hint after first interaction
-    const scrollHint = document.querySelector('.scroll-hint');
-    const hideHint = () => {
-      scrollHint.style.opacity = '0';
-      scrollHint.style.transition = 'opacity 0.5s';
-      window.removeEventListener('wheel', hideHint);
-      window.removeEventListener('touchstart', hideHint);
-      window.removeEventListener('keydown', hideHint);
-    };
-    window.addEventListener('wheel', hideHint, { once: true });
-    window.addEventListener('touchstart', hideHint, { once: true });
-    window.addEventListener('keydown', hideHint, { once: true });
+    modalClose.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+    window.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
   </script>
 </body>
 </html>

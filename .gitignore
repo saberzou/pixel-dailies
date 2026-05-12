@@ -1,1 +1,3 @@
-screenshot*.jpg
+.preview*.png
+.preview*.jpg
+.tmp-*
