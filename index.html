@@ -11,20 +11,19 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     :root {
-      --cork-1: #c9a36b;
-      --cork-2: #b08855;
-      --cork-3: #8a6840;
       --stamp-bg: #fafafa;
       --stamp-ink: #2a2a2a;
       --stamp-sub: #888;
+      --stamp-w: 150px;  /* compact stamps */
     }
 
-    html, body { min-height: 100%; }
+    html, body { height: 100%; }
 
     body {
       font-family: 'Jost', sans-serif;
       color: #2a2a2a;
-      /* Cork board: warm tan base + speckle noise + soft vignette */
+      overflow: hidden;
+      /* Cork board */
       background-color: #b58a55;
       background-image:
         radial-gradient(ellipse at 50% 25%, rgba(255,235,200,0.22), transparent 65%),
@@ -34,8 +33,6 @@
         url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='h'><feTurbulence type='fractalNoise' baseFrequency='3' numOctaves='1' seed='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 0.88  0 0 0 0 0.6  0 0 0 0.22 0'/></filter><rect width='100%25' height='100%25' filter='url(%23h)'/></svg>");
       background-blend-mode: normal, multiply, multiply, multiply, screen;
       background-size: auto, auto, 320px 320px, 220px 220px, 160px 160px;
-      min-height: 100vh;
-      padding: 88px 24px 64px;
     }
 
     .header {
@@ -53,7 +50,9 @@
       border-radius: 999px;
       border: 1px solid rgba(255,255,255,0.6);
       box-shadow: 0 6px 20px rgba(0,0,0,0.18);
+      pointer-events: none;
     }
+    .header > * { pointer-events: auto; }
     .header h1 {
       font-size: 1rem;
       font-weight: 500;
@@ -67,47 +66,52 @@
       color: #5a4632;
       font-weight: 300;
     }
+    .header .right { display: flex; align-items: center; gap: 14px; }
     .header .count {
       font-family: 'Special Elite', monospace;
       font-size: 0.85rem;
       color: #5a4632;
     }
-
-    /* Masonry-ish board via CSS columns */
-    .board {
-      column-count: 5;
-      column-gap: 28px;
-      max-width: 1500px;
-      margin: 0 auto;
-    }
-    @media (max-width: 1280px) { .board { column-count: 4; } }
-    @media (max-width: 980px)  { .board { column-count: 3; } }
-    @media (max-width: 680px)  { .board { column-count: 2; column-gap: 18px; } }
-    @media (max-width: 420px)  { .board { column-count: 1; } }
-
-    /* Stamp tile */
-    .stamp {
-      break-inside: avoid;
-      margin: 0 0 32px;
-      display: inline-block;
-      width: 100%;
+    .reset-btn {
+      font-family: 'Jost', sans-serif;
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 6px 12px;
+      border: 1px solid rgba(58,42,24,0.3);
+      background: rgba(255,255,255,0.6);
+      border-radius: 999px;
+      color: #3a2a18;
       cursor: pointer;
-      transition: transform 0.25s cubic-bezier(.2,.7,.3,1.4), filter 0.2s;
-      transform-origin: center center;
-      will-change: transform;
     }
-    .stamp:hover { transform: var(--tilt-hover) !important; filter: brightness(1.04); z-index: 10; }
-    .stamp:active { transform: var(--tilt) scale(0.98) !important; }
+    .reset-btn:hover { background: rgba(255,255,255,0.85); }
+
+    /* Board is the full viewport; stamps are absolutely positioned */
+    .board {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+    }
+
+    .stamp {
+      position: absolute;
+      width: var(--stamp-w);
+      cursor: grab;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+      transition: filter 0.2s, box-shadow 0.2s;
+      will-change: transform, left, top;
+    }
+    .stamp.dragging { cursor: grabbing; z-index: 9999 !important; transition: none; }
+    .stamp:hover { filter: brightness(1.04); }
 
     .stamp-card {
       position: relative;
       background: var(--stamp-bg);
-      padding: 18px 18px 14px;
-      /* Stamp perforations: only along the four edges.
-         Four edge stripes (each with tiled circular holes) plus a solid inner rect.
-         Union (default mask-composite: add) covers the whole card except the holes. */
-      --r: 6px;
-      --sp: 16px;
+      padding: 10px 10px 8px;
+      --r: 5px;
+      --sp: 13px;
       -webkit-mask:
         radial-gradient(circle var(--r) at center, #0000 calc(var(--r) - 0.5px), #000 var(--r)) 0 0      / var(--sp) calc(var(--r) * 2) repeat-x,
         radial-gradient(circle var(--r) at center, #0000 calc(var(--r) - 0.5px), #000 var(--r)) 0 100%   / var(--sp) calc(var(--r) * 2) repeat-x,
@@ -122,8 +126,14 @@
         linear-gradient(#000, #000) center / calc(100% - var(--r) * 2 + 1px) calc(100% - var(--r) * 2 + 1px) no-repeat;
       filter:
         drop-shadow(0 1px 0 rgba(0,0,0,0.10))
-        drop-shadow(0 6px 12px rgba(0,0,0,0.30))
-        drop-shadow(0 16px 24px rgba(0,0,0,0.18));
+        drop-shadow(0 5px 9px rgba(0,0,0,0.30))
+        drop-shadow(0 12px 18px rgba(0,0,0,0.18));
+    }
+    .stamp.dragging .stamp-card {
+      filter:
+        drop-shadow(0 1px 0 rgba(0,0,0,0.10))
+        drop-shadow(0 12px 22px rgba(0,0,0,0.40))
+        drop-shadow(0 24px 36px rgba(0,0,0,0.25));
     }
 
     .stamp-art {
@@ -134,19 +144,20 @@
       image-rendering: pixelated;
       image-rendering: crisp-edges;
       border-radius: 2px;
+      pointer-events: none;
     }
 
     .stamp-meta {
-      margin-top: 10px;
+      margin-top: 6px;
       display: flex;
       align-items: flex-end;
       justify-content: space-between;
-      gap: 8px;
+      gap: 6px;
       padding: 0 2px;
     }
     .stamp-title {
       font-family: 'Special Elite', monospace;
-      font-size: 0.95rem;
+      font-size: 0.72rem;
       color: var(--stamp-ink);
       line-height: 1.1;
       max-width: 60%;
@@ -156,32 +167,29 @@
     }
     .stamp-date {
       font-family: 'Special Elite', monospace;
-      font-size: 0.7rem;
+      font-size: 0.55rem;
       color: var(--stamp-sub);
       letter-spacing: 0.04em;
     }
     .stamp-num {
       font-family: 'Special Elite', monospace;
       font-weight: 700;
-      font-size: 1.6rem;
+      font-size: 1.15rem;
       color: var(--stamp-ink);
       line-height: 1;
       margin-left: auto;
     }
 
-    /* Pin in the top center of each stamp */
     .pin {
       position: absolute;
-      top: -6px;
+      top: -5px;
       left: 50%;
       transform: translateX(-50%);
-      width: 14px;
-      height: 14px;
+      width: 11px;
+      height: 11px;
       border-radius: 50%;
       background: radial-gradient(circle at 30% 30%, #ff8a8a, #c0392b 65%, #6b1d12 100%);
-      box-shadow:
-        0 0 0 1px rgba(0,0,0,0.18),
-        0 4px 6px rgba(0,0,0,0.35);
+      box-shadow: 0 0 0 1px rgba(0,0,0,0.18), 0 3px 5px rgba(0,0,0,0.35);
       z-index: 5;
       pointer-events: none;
     }
@@ -204,16 +212,11 @@
       transition: opacity 0.25s;
     }
     .modal.open { display: flex; opacity: 1; }
-    .modal .stamp-card {
-      max-width: min(78vmin, 560px);
-      width: 100%;
-      padding: 22px 22px 16px;
-      --r: 9px;
-      transform: rotate(-1.5deg);
-    }
-    .modal .stamp-num { font-size: 2.6rem; }
-    .modal .stamp-title { font-size: 1.4rem; max-width: 70%; }
-    .modal .stamp-date { font-size: 0.9rem; }
+    .modal .stamp { position: static; width: min(70vmin, 480px); cursor: default; }
+    .modal .stamp-card { padding: 22px 22px 16px; --r: 9px; --sp: 22px; transform: rotate(-1.5deg); }
+    .modal .stamp-num { font-size: 2.4rem; }
+    .modal .stamp-title { font-size: 1.3rem; max-width: 70%; }
+    .modal .stamp-date { font-size: 0.85rem; }
     .modal-close {
       position: fixed;
       top: 24px; right: 24px;
@@ -229,14 +232,22 @@
       box-shadow: 0 4px 14px rgba(0,0,0,0.3);
     }
 
-    .footer-note {
-      margin: 40px auto 0;
-      max-width: 600px;
-      text-align: center;
-      font-size: 0.78rem;
-      color: rgba(255,255,255,0.7);
-      letter-spacing: 0.06em;
+    .hint {
+      position: fixed;
+      bottom: 18px; left: 50%; transform: translateX(-50%);
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
+      color: rgba(255,250,240,0.75);
+      background: rgba(0,0,0,0.25);
+      padding: 6px 14px;
+      border-radius: 999px;
+      pointer-events: none;
+      z-index: 40;
+    }
+
+    @media (max-width: 720px) {
+      :root { --stamp-w: 120px; }
     }
   </style>
 </head>
@@ -244,14 +255,17 @@
   <div class="header">
     <div>
       <h1>Pixel Dailies</h1>
-      <div class="sub">A new piece of pixel art, every day.</div>
+      <div class="sub">Drag the stamps anywhere on the board.</div>
     </div>
-    <div class="count" id="count">— pieces</div>
+    <div class="right">
+      <div class="count" id="count">— pieces</div>
+      <button class="reset-btn" id="reset">Reset layout</button>
+    </div>
   </div>
 
   <div class="board" id="board"></div>
 
-  <div class="footer-note">Tap a stamp to take a closer look.</div>
+  <div class="hint">Click to view · Drag to move</div>
 
   <div class="modal" id="modal" role="dialog" aria-modal="true">
     <button class="modal-close" id="modalClose" aria-label="Close">×</button>
@@ -260,7 +274,11 @@
 
   <script src="data.js"></script>
   <script>
-    // Sort newest first; preserve original index as the daily number
+    const STORAGE_KEY = 'pixel-dailies-positions-v1';
+    const STAMP_W = 150;
+    const STAMP_H_EST = 200; // approx including meta row
+    const HEADER_H = 80;
+
     const pieces = gallery
       .map((p, i) => ({ ...p, _origIndex: i }))
       .sort((a, b) => {
@@ -270,53 +288,99 @@
 
     document.getElementById('count').textContent = `${pieces.length} pieces`;
 
-    // Deterministic pseudo-random per index (so layout is stable across reloads)
     function rand(seed) {
       const x = Math.sin(seed * 9301 + 49297) * 233280;
       return x - Math.floor(x);
     }
 
-    // Render a 20x20 (or N) pixel art to a canvas
     function renderPixelArt(canvas, piece) {
       const size = piece.size || 20;
-      const scale = 16; // crisp blocks for the stamp
+      const scale = 16;
       canvas.width = size * scale;
       canvas.height = size * scale;
       const ctx = canvas.getContext('2d');
       ctx.imageSmoothingEnabled = false;
-
       const frame = piece.frames[0];
       const palette = piece.palette;
-
-      // Background: treat color index 0 as transparent-ish (paper)
       ctx.fillStyle = palette[0] || '#ffffff';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-
       for (let y = 0; y < size; y++) {
         for (let x = 0; x < size; x++) {
           const idx = parseInt(frame[y * size + x] || '0', 16);
           if (isNaN(idx)) continue;
-          const color = palette[idx] || palette[0];
-          ctx.fillStyle = color;
+          ctx.fillStyle = palette[idx] || palette[0];
           ctx.fillRect(x * scale, y * scale, scale, scale);
         }
       }
     }
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, c => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[c]));
+    }
+
+    // ── Layout: load from storage or generate scattered defaults ──
+    function loadPositions() {
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); }
+      catch { return {}; }
+    }
+    function savePositions(map) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(map));
+    }
+
+    // Pseudo-masonry default: pack stamps in a soft staggered grid with slight jitter
+    function defaultLayout(count) {
+      const map = {};
+      const W = window.innerWidth;
+      const H = window.innerHeight;
+      const margin = 24;
+      const padX = 22;
+      const padY = 30;
+      const cellW = STAMP_W + padX;
+      const cellH = STAMP_H_EST + padY;
+      const cols = Math.max(2, Math.floor((W - margin * 2) / cellW));
+      const startX = (W - cols * cellW) / 2 + padX / 2;
+      const startY = HEADER_H + 16;
+      for (let i = 0; i < count; i++) {
+        const col = i % cols;
+        const row = Math.floor(i / cols);
+        const seed = i + 1;
+        const jitterX = (rand(seed) - 0.5) * 18;
+        const jitterY = (rand(seed + 7) - 0.5) * 14;
+        const tilt = (rand(seed + 3) - 0.5) * 8;
+        map[i] = {
+          x: startX + col * cellW + jitterX,
+          y: startY + row * cellH + jitterY,
+          rot: tilt
+        };
+      }
+      return map;
+    }
+
+    let positions = loadPositions();
+    if (!positions || Object.keys(positions).length === 0) {
+      positions = defaultLayout(pieces.length);
+      savePositions(positions);
+    }
+
+    // Track z-order so dragged stamps come to front
+    let topZ = 1;
 
     const board = document.getElementById('board');
     const pinColors = ['', 'blue', 'yellow', 'green'];
 
     pieces.forEach((piece, i) => {
       const seed = piece._origIndex + 1;
-      const tilt = (rand(seed) - 0.5) * 6;        // -3 to +3 deg
-      const offsetY = (rand(seed + 1) - 0.5) * 14; // tiny vertical jitter
-      const hoverTilt = tilt * 0.3;
+      const pos = positions[i] || { x: 50, y: 100, rot: 0 };
 
       const wrap = document.createElement('div');
       wrap.className = 'stamp';
-      wrap.style.setProperty('--tilt', `rotate(${tilt.toFixed(2)}deg) translateY(${offsetY.toFixed(1)}px)`);
-      wrap.style.setProperty('--tilt-hover', `rotate(${hoverTilt.toFixed(2)}deg) translateY(${(offsetY - 6).toFixed(1)}px) scale(1.04)`);
-      wrap.style.transform = `var(--tilt)`;
+      wrap.dataset.idx = i;
+      wrap.style.left = pos.x + 'px';
+      wrap.style.top  = pos.y + 'px';
+      wrap.style.transform = `rotate(${pos.rot.toFixed(2)}deg)`;
+      wrap.style.zIndex = ++topZ;
 
       const pinClass = pinColors[Math.floor(rand(seed + 2) * pinColors.length)];
       const dailyNum = piece._origIndex + 1;
@@ -338,17 +402,58 @@
       const canvas = wrap.querySelector('canvas');
       renderPixelArt(canvas, piece);
 
-      wrap.addEventListener('click', () => openModal(piece));
+      attachDrag(wrap, piece, i);
       board.appendChild(wrap);
     });
 
-    function escapeHtml(s) {
-      return String(s).replace(/[&<>"']/g, c => ({
-        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-      }[c]));
+    function attachDrag(el, piece, idx) {
+      let startX, startY, originX, originY, moved = false, pid = null;
+
+      el.addEventListener('pointerdown', (e) => {
+        if (e.button !== undefined && e.button !== 0) return;
+        pid = e.pointerId;
+        moved = false;
+        startX = e.clientX;
+        startY = e.clientY;
+        originX = parseFloat(el.style.left);
+        originY = parseFloat(el.style.top);
+        el.classList.add('dragging');
+        el.style.zIndex = ++topZ;
+        el.setPointerCapture(pid);
+      });
+
+      el.addEventListener('pointermove', (e) => {
+        if (pid === null || e.pointerId !== pid) return;
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        if (!moved && Math.hypot(dx, dy) > 4) moved = true;
+        if (moved) {
+          el.style.left = (originX + dx) + 'px';
+          el.style.top  = (originY + dy) + 'px';
+        }
+      });
+
+      function end(e) {
+        if (pid === null || (e && e.pointerId !== pid)) return;
+        el.classList.remove('dragging');
+        try { el.releasePointerCapture(pid); } catch {}
+        pid = null;
+
+        if (moved) {
+          const x = parseFloat(el.style.left);
+          const y = parseFloat(el.style.top);
+          const rot = positions[idx]?.rot ?? 0;
+          positions[idx] = { x, y, rot };
+          savePositions(positions);
+        } else {
+          openModal(piece);
+        }
+      }
+      el.addEventListener('pointerup', end);
+      el.addEventListener('pointercancel', end);
     }
 
-    // ── Modal with frame animation ──
+    // ── Modal ──
     const modal = document.getElementById('modal');
     const modalContent = document.getElementById('modalContent');
     const modalClose = document.getElementById('modalClose');
@@ -372,11 +477,8 @@
         </div>
       `;
       const canvas = modalContent.querySelector('canvas');
-      // Animate frames if more than one
       let frameIdx = 0;
-      function draw() {
-        renderPixelArt(canvas, { ...piece, frames: [piece.frames[frameIdx]] });
-      }
+      const draw = () => renderPixelArt(canvas, { ...piece, frames: [piece.frames[frameIdx]] });
       draw();
       if (piece.frames.length > 1) {
         const fps = piece.fps || 4;
@@ -396,6 +498,12 @@
     modalClose.addEventListener('click', closeModal);
     modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
     window.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+    document.getElementById('reset').addEventListener('click', () => {
+      if (!confirm('Reset all stamp positions?')) return;
+      localStorage.removeItem(STORAGE_KEY);
+      location.reload();
+    });
   </script>
 </body>
 </html>
