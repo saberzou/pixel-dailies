@@ -14,7 +14,7 @@
       --stamp-bg: #fafafa;
       --stamp-ink: #2a2a2a;
       --stamp-sub: #888;
-      --stamp-w: 150px;  /* compact stamps */
+      --stamp-w: 180px;  /* compact stamps */
     }
 
     html, body { height: 100%; }
@@ -22,7 +22,6 @@
     body {
       font-family: 'Jost', sans-serif;
       color: #2a2a2a;
-      overflow: hidden;
       /* Cork board */
       background-color: #b58a55;
       background-image:
@@ -88,9 +87,9 @@
 
     /* Board is the full viewport; stamps are absolutely positioned */
     .board {
-      position: fixed;
-      inset: 0;
-      overflow: hidden;
+      position: relative;
+      width: 100%;
+      min-height: 100vh;
     }
 
     .stamp {
@@ -247,7 +246,7 @@
     }
 
     @media (max-width: 720px) {
-      :root { --stamp-w: 120px; }
+      :root { --stamp-w: 140px; }
     }
   </style>
 </head>
@@ -274,9 +273,9 @@
 
   <script src="data.js"></script>
   <script>
-    const STORAGE_KEY = 'pixel-dailies-positions-v1';
-    const STAMP_W = 150;
-    const STAMP_H_EST = 200; // approx including meta row
+    const STORAGE_KEY = 'pixel-dailies-positions-v2';
+    const STAMP_W = 180;
+    const STAMP_H_EST = 232; // approx including meta row
     const HEADER_H = 80;
 
     const pieces = gallery
@@ -339,7 +338,7 @@
       const padY = 30;
       const cellW = STAMP_W + padX;
       const cellH = STAMP_H_EST + padY;
-      const cols = Math.max(2, Math.floor((W - margin * 2) / cellW));
+      const cols = Math.max(2, Math.min(4, Math.floor((W - margin * 2) / cellW)));
       const startX = (W - cols * cellW) / 2 + padX / 2;
       const startY = HEADER_H + 16;
       for (let i = 0; i < count; i++) {
@@ -366,6 +365,15 @@
 
     // Track z-order so dragged stamps come to front
     let topZ = 1;
+
+    // Grow the board to fit the lowest stamp
+    function fitBoard() {
+      let maxY = 0;
+      Object.values(positions).forEach(p => { if (p && p.y > maxY) maxY = p.y; });
+      document.getElementById('board').style.minHeight =
+        Math.max(window.innerHeight, maxY + STAMP_H_EST + 60) + 'px';
+    }
+    fitBoard();
 
     const board = document.getElementById('board');
     const pinColors = ['', 'blue', 'yellow', 'green'];
@@ -445,6 +453,7 @@
           const rot = positions[idx]?.rot ?? 0;
           positions[idx] = { x, y, rot };
           savePositions(positions);
+          fitBoard();
         } else {
           openModal(piece);
         }
