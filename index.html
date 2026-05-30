@@ -475,27 +475,32 @@
       wrap.style.opacity = '0';
     });
 
-    // ── Entry animation: stamps drop onto the board with stagger ──
+    // ── Entry: lay everything into a fresh compact grid, then animate in ──
     requestAnimationFrame(() => {
       const allStamps = Array.from(board.querySelectorAll('.stamp'));
-      // Sort top-to-bottom so the cascade reads naturally
-      const ordered = allStamps.slice().sort((a, b) =>
-        parseFloat(a.style.top) - parseFloat(b.style.top));
-      ordered.forEach((el, i) => {
-        const finalRot = gsap.getProperty(el, 'rotation');
+      const targets = computeCompactLayout(allStamps);
+      allStamps.forEach((el, i) => {
+        const t = targets[i];
+        const idx = parseInt(el.dataset.idx, 10);
+        // Set final position immediately
+        el.style.left = t.x + 'px';
+        el.style.top = t.y + 'px';
+        positions[idx] = { x: t.x, y: t.y, rot: t.rot };
         gsap.fromTo(el,
-          { opacity: 0, y: -40, scale: 0.6, rotation: finalRot - 25 },
+          { opacity: 0, y: -50, scale: 0.6, rotation: t.rot - 30 },
           {
             duration: 0.7,
             opacity: 1,
             y: 0,
             scale: 1,
-            rotation: finalRot,
+            rotation: t.rot,
             ease: 'back.out(1.4)',
-            delay: 0.04 * i
+            delay: 0.035 * i
           }
         );
       });
+      savePositions(positions);
+      setTimeout(fitBoard, 800);
     });
 
     // ── Category filter (with GSAP reflow) ──
