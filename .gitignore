@@ -1,3 +1,5 @@
 .preview*.png
 .preview*.jpg
 .tmp-*
+node_modules/
+scripts/preview-heroes.js

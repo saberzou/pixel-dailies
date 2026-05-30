@@ -91,6 +91,43 @@
     }
     .reset-btn:hover { opacity: 1; }
 
+    .cat-filter {
+      position: fixed;
+      top: 28px; left: 50%;
+      transform: translateX(-50%);
+      z-index: 50;
+      display: flex;
+      gap: 6px;
+      padding: 5px;
+      background: rgba(0,0,0,0.28);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+    .cat-pill {
+      font-family: 'Jost', sans-serif;
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 7px 14px;
+      border: none;
+      border-radius: 999px;
+      background: transparent;
+      color: rgba(255,255,255,0.7);
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    .cat-pill:hover { color: #fff; }
+    .cat-pill.active {
+      background: rgba(255,255,255,0.92);
+      color: #2a2a2a;
+    }
+    @media (max-width: 720px) {
+      .cat-filter { top: auto; bottom: 20px; }
+      .cat-pill { font-size: 0.65rem; padding: 6px 11px; }
+    }
+
     /* Board is the full viewport; stamps are absolutely positioned */
     .board {
       position: relative;
@@ -269,6 +306,13 @@
     <button class="reset-btn" id="reset">Reset</button>
   </div>
 
+  <div class="cat-filter" id="catFilter">
+    <button class="cat-pill active" data-cat="all">All</button>
+    <button class="cat-pill" data-cat="glyphs">Glyphs</button>
+    <button class="cat-pill" data-cat="yugen">Yūgen</button>
+    <button class="cat-pill" data-cat="heroes">Heroes</button>
+  </div>
+
   <div class="board" id="board"></div>
 
   <div class="hint">Click to view · Drag to move</div>
@@ -291,8 +335,6 @@
         const d = new Date(b.date) - new Date(a.date);
         return d !== 0 ? d : b._origIndex - a._origIndex;
       });
-
-    document.getElementById('count').textContent = `${pieces.length} pieces`;
 
     function rand(seed) {
       const x = Math.sin(seed * 9301 + 49297) * 233280;
@@ -397,6 +439,7 @@
       const wrap = document.createElement('div');
       wrap.className = 'stamp';
       wrap.dataset.idx = i;
+      wrap.dataset.cat = piece.category || 'yugen';
       wrap.style.left = pos.x + 'px';
       wrap.style.top  = pos.y + 'px';
       wrap.style.transform = `rotate(${pos.rot.toFixed(2)}deg)`;
@@ -428,6 +471,27 @@
       attachDrag(wrap, piece, i);
       board.appendChild(wrap);
     });
+
+    // ── Category filter ──
+    let currentCat = 'all';
+    function applyFilter(cat) {
+      currentCat = cat;
+      let visible = 0;
+      board.querySelectorAll('.stamp').forEach(el => {
+        const show = (cat === 'all') || (el.dataset.cat === cat);
+        el.style.display = show ? '' : 'none';
+        if (show) visible++;
+      });
+      document.getElementById('count').textContent = `${visible} pieces`;
+    }
+    document.getElementById('catFilter').addEventListener('click', (e) => {
+      const btn = e.target.closest('.cat-pill');
+      if (!btn) return;
+      document.querySelectorAll('.cat-pill').forEach(b => b.classList.toggle('active', b === btn));
+      applyFilter(btn.dataset.cat);
+    });
+    // initial count reflects all
+    applyFilter('all');
 
     function attachDrag(el, piece, idx) {
       let startX, startY, originX, originY, moved = false, pid = null;
