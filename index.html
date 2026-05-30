@@ -24,7 +24,15 @@
     body {
       font-family: 'Jost', sans-serif;
       color: #2a2a2a;
-      /* Cork board */
+      background: #b58a55;
+    }
+
+    /* Cork board lives on a pinned background layer so it never scrolls
+       (background-attachment: fixed is unreliable on iOS Safari). */
+    .cork-bg {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
       background-color: #b58a55;
       background-image:
         radial-gradient(ellipse at 50% 25%, rgba(255,235,200,0.22), transparent 65%),
@@ -34,7 +42,7 @@
         url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='h'><feTurbulence type='fractalNoise' baseFrequency='3' numOctaves='1' seed='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 0.88  0 0 0 0 0.6  0 0 0 0.22 0'/></filter><rect width='100%25' height='100%25' filter='url(%23h)'/></svg>");
       background-blend-mode: normal, multiply, multiply, multiply, screen;
       background-size: auto, auto, 320px 320px, 220px 220px, 160px 160px;
-      background-attachment: fixed, fixed, fixed, fixed, fixed;
+      pointer-events: none;
     }
 
     /* Bare title baked onto the cork */
@@ -300,6 +308,7 @@
   </style>
 </head>
 <body>
+  <div class="cork-bg" aria-hidden="true"></div>
   <div class="title-block">
     <h1>Pixel Dailies</h1>
     <div class="sub">Drag the stamps anywhere on the board.</div>
@@ -559,6 +568,9 @@
         fitBoard();
         return;
       }
+
+      // Scroll back to top before reflow so the new layout is in view
+      window.scrollTo({ top: 0, behavior: 'smooth' });
 
       // Compute compact positions for visible stamps
       const targets = computeCompactLayout(visible);
