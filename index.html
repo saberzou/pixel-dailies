@@ -41,7 +41,7 @@
     .title-block {
       position: fixed;
       top: 28px; left: 32px;
-      z-index: 50;
+      z-index: 210;
       pointer-events: none;
       color: #fff;
       text-shadow: 0 1px 2px rgba(0,0,0,0.45), 0 4px 14px rgba(0,0,0,0.35);
@@ -63,7 +63,7 @@
     .top-right {
       position: fixed;
       top: 28px; right: 32px;
-      z-index: 50;
+      z-index: 210;
       display: flex;
       align-items: center;
       gap: 16px;
@@ -95,7 +95,7 @@
       position: fixed;
       top: 28px; left: 50%;
       transform: translateX(-50%);
-      z-index: 50;
+      z-index: 210;
       display: flex;
       gap: 6px;
       padding: 5px;
@@ -124,7 +124,10 @@
       color: #2a2a2a;
     }
     @media (max-width: 720px) {
-      .cat-filter { top: auto; bottom: 20px; }
+      .cat-filter {
+        top: auto;
+        bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+      }
       .cat-pill { font-size: 0.65rem; padding: 6px 11px; }
     }
 
@@ -145,7 +148,7 @@
       transition: filter 0.2s, box-shadow 0.2s;
       will-change: transform, left, top;
     }
-    .stamp.dragging { cursor: grabbing; z-index: 9999 !important; transition: none; }
+    .stamp.dragging { cursor: grabbing; z-index: 180 !important; transition: none; }
     .stamp:hover { filter: brightness(1.04); }
 
     .stamp-card {
@@ -420,6 +423,11 @@
 
     // Track z-order so dragged stamps come to front
     let topZ = 1;
+    const Z_MAX = 150; // stay below UI (200+) and dragging override (180)
+    function bumpZ(el) {
+      if (topZ >= Z_MAX) topZ = 1;
+      el.style.zIndex = ++topZ;
+    }
 
     // Grow the board to fit the lowest stamp
     function fitBoard() {
@@ -444,7 +452,7 @@
       wrap.style.left = pos.x + 'px';
       wrap.style.top  = pos.y + 'px';
       wrap.style.transform = `rotate(${pos.rot.toFixed(2)}deg)`;
-      wrap.style.zIndex = ++topZ;
+      bumpZ(wrap);
 
       const pinClass = pinColors[Math.floor(rand(seed + 2) * pinColors.length)];
       const dailyNum = piece._origIndex + 1;
@@ -543,7 +551,7 @@
       document.getElementById('count').textContent = `${visible.length} pieces`;
 
       // Bump visible to front before any animation so they're crisp during fade
-      visible.forEach(el => { el.style.zIndex = ++topZ; });
+      visible.forEach(el => bumpZ(el));
 
       if (isInitial) {
         // First render: just hide non-matching
@@ -617,7 +625,7 @@
         originX = parseFloat(el.style.left);
         originY = parseFloat(el.style.top);
         el.classList.add('dragging');
-        el.style.zIndex = ++topZ;
+        bumpZ(el);
         el.setPointerCapture(pid);
       });
 
