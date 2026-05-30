@@ -323,6 +323,7 @@
   </div>
 
   <script src="data.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
   <script>
     const STORAGE_KEY = 'pixel-dailies-positions-v5';
     const STAMP_W = 180;
@@ -470,25 +471,131 @@
 
       attachDrag(wrap, piece, i);
       board.appendChild(wrap);
+      // Stage for entry animation
+      wrap.style.opacity = '0';
     });
 
-    // ── Category filter ──
-    let currentCat = 'all';
-    function applyFilter(cat) {
-      currentCat = cat;
-      let visible = 0;
-      board.querySelectorAll('.stamp').forEach(el => {
-        const show = (cat === 'all') || (el.dataset.cat === cat);
-        el.style.display = show ? '' : 'none';
-        if (show) visible++;
+    // ── Entry animation: stamps drop onto the board with stagger ──
+    requestAnimationFrame(() => {
+      const allStamps = Array.from(board.querySelectorAll('.stamp'));
+      // Sort top-to-bottom so the cascade reads naturally
+      const ordered = allStamps.slice().sort((a, b) =>
+        parseFloat(a.style.top) - parseFloat(b.style.top));
+      ordered.forEach((el, i) => {
+        const finalRot = gsap.getProperty(el, 'rotation');
+        gsap.fromTo(el,
+          { opacity: 0, y: -40, scale: 0.6, rotation: finalRot - 25 },
+          {
+            duration: 0.7,
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            rotation: finalRot,
+            ease: 'back.out(1.4)',
+            delay: 0.04 * i
+          }
+        );
       });
-      document.getElementById('count').textContent = `${visible} pieces`;
+    });
+
+    // ── Category filter (with GSAP reflow) ──
+    let currentCat = 'all';
+    function computeCompactLayout(visibleStamps) {
+      const W = window.innerWidth;
+      const isMobile = W <= 720;
+      const stampW = isMobile ? 140 : STAMP_W;
+      const stampH = isMobile ? Math.round(140 * 1201 / 892) + 4 : STAMP_H_EST;
+      const padX = isMobile ? 24 : 44;
+      const padY = isMobile ? 36 : 56;
+      const cellW = stampW + padX;
+      const cellH = stampH + padY;
+      const cols = isMobile
+        ? 2
+        : Math.max(2, Math.min(4, Math.floor((W - 48) / cellW)));
+      const startX = (W - cols * cellW) / 2 + padX / 2;
+      const startY = HEADER_H + 16;
+      return visibleStamps.map((_, i) => {
+        const col = i % cols;
+        const row = Math.floor(i / cols);
+        const seed = i + 1;
+        const jitterX = (rand(seed) - 0.5) * (isMobile ? 10 : 18);
+        const jitterY = (rand(seed + 7) - 0.5) * (isMobile ? 8 : 14);
+        const tilt = (rand(seed + 3) - 0.5) * 8;
+        return {
+          x: startX + col * cellW + jitterX,
+          y: startY + row * cellH + jitterY,
+          rot: tilt
+        };
+      });
     }
+
+    function applyFilter(cat) {
+      const isInitial = currentCat === cat && cat === 'all';
+      currentCat = cat;
+      const allStamps = Array.from(board.querySelectorAll('.stamp'));
+      const visible = allStamps.filter(el => cat === 'all' || el.dataset.cat === cat);
+      const hidden  = allStamps.filter(el => !(cat === 'all' || el.dataset.cat === cat));
+      document.getElementById('count').textContent = `${visible.length} pieces`;
+
+      // Bump visible to front before any animation so they're crisp during fade
+      visible.forEach(el => { el.style.zIndex = ++topZ; });
+
+      if (isInitial) {
+        // First render: just hide non-matching
+        hidden.forEach(el => { el.style.display = 'none'; });
+        fitBoard();
+        return;
+      }
+
+      // Compute compact positions for visible stamps
+      const targets = computeCompactLayout(visible);
+
+      // Animate hidden out
+      gsap.to(hidden, {
+        duration: 0.35,
+        opacity: 0,
+        scale: 0.85,
+        ease: 'power2.in',
+        overwrite: true,
+        onComplete: () => hidden.forEach(el => { el.style.display = 'none'; })
+      });
+
+      // Reveal + animate visible to compact layout
+      visible.forEach((el, i) => {
+        el.style.display = '';
+        const t = targets[i];
+        gsap.fromTo(el,
+          { opacity: gsap.getProperty(el, 'opacity') },
+          {
+            duration: 0.6,
+            opacity: 1,
+            left: t.x + 'px',
+            top: t.y + 'px',
+            rotation: t.rot,
+            scale: 1,
+            ease: 'power3.out',
+            delay: 0.08 + i * 0.025,
+            overwrite: true,
+            onComplete: () => {
+              // Persist new positions for the filtered subset
+              const idx = parseInt(el.dataset.idx, 10);
+              positions[idx] = { x: t.x, y: t.y, rot: t.rot };
+            }
+          }
+        );
+      });
+      // Save once animation has settled
+      setTimeout(() => { savePositions(positions); fitBoard(); },
+                 600 + visible.length * 25 + 100);
+    }
+
     document.getElementById('catFilter').addEventListener('click', (e) => {
       const btn = e.target.closest('.cat-pill');
       if (!btn) return;
+      const newCat = btn.dataset.cat;
+      if (newCat === currentCat) return;
       document.querySelectorAll('.cat-pill').forEach(b => b.classList.toggle('active', b === btn));
-      applyFilter(btn.dataset.cat);
+      applyFilter(newCat);
     });
     // initial count reflects all
     applyFilter('all');
