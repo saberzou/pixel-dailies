@@ -222,11 +222,14 @@
     .stamp.is-hero { --stamp-fill: var(--hero-bleed, #6b3df5); }
     .stamp.is-hero .stamp-inner { top: 3.5%; bottom: 3.5%; left: 3.5%; right: 3.5%; gap: 0; }
     .stamp.is-hero .stamp-art {
-      position: relative;
-      z-index: 3;
+      position: absolute;
+      top: 11%;
+      left: 11%;
+      right: 11%;
       width: 78%;
-      align-self: center;
-      margin-top: 14%;
+      max-height: 48%;
+      object-fit: contain;
+      z-index: 3;
       filter: drop-shadow(0 2px 0 rgba(0,0,0,0.15));
     }
     .stamp.is-hero .stamp-meta { display: none; }
@@ -242,7 +245,7 @@
     }
     .stamp.is-hero .hero-caption {
       position: absolute;
-      top: 7%;
+      top: 4.5%;
       left: 0; right: 0;
       text-align: center;
       font-family: 'Jost', sans-serif;
@@ -255,14 +258,17 @@
     }
     .stamp.is-hero .hero-title {
       position: absolute;
-      left: 4%;
-      right: 4%;
-      bottom: 9%;
-      font-size: 1.55rem;
-      line-height: 0.92;
+      left: 6%;
+      right: 6%;
+      bottom: 12%;
+      font-size: 1.35rem;
+      line-height: 0.95;
       text-transform: uppercase;
       color: var(--hero-ink, #ffffff);
-      word-break: break-word;
+      overflow-wrap: break-word;
+      word-break: normal;
+      hyphens: none;
+      text-wrap: balance;
     }
     .stamp.is-hero .hero-num {
       position: absolute;
@@ -343,10 +349,12 @@
     .modal .stamp-num { font-size: 2.4rem; }
     .modal .stamp-title { font-size: 1.3rem; max-width: 70%; }
     .modal .stamp-date { font-size: 0.85rem; }
-    .modal .stamp.is-hero .hero-caption { font-size: 1.05rem; }
-    .modal .stamp.is-hero .hero-title { font-size: 3.6rem; bottom: 11%; }
+    .modal .stamp.is-hero .hero-caption { font-size: 1.05rem; top: 5%; }
+    .modal .stamp.is-hero .hero-title { font-size: 2.4rem; bottom: 13%; }
+    .modal .stamp.is-hero .hero-title.is-long { font-size: 1.9rem; }
     .modal .stamp.is-hero .hero-num { font-size: 1.6rem; }
     .modal .stamp.is-hero .hero-date { font-size: 1.0rem; }
+    .modal .stamp.is-hero .stamp-art { top: 11%; max-height: 42%; }
     .modal-close {
       position: fixed;
       top: 24px; right: 24px;
@@ -607,7 +615,7 @@
       const heroOverlay = piece.category === 'heroes' ? `
             <div class="hero-overlay">
               <div class="hero-caption">${escapeHtml((piece.universe || 'pixel daily').toUpperCase())}</div>
-              <div class="hero-title">${escapeHtml(piece.title || '—')}</div>
+              <div class="hero-title${(piece.title||'').length > 9 ? ' is-long' : ''}">${escapeHtml(piece.title || '—')}</div>
               <div class="hero-date">${piece.date}</div>
               <div class="hero-num">№${dailyNum}</div>
             </div>` : '';
@@ -836,7 +844,7 @@
         heroOverlay = `
             <div class="hero-overlay">
               <div class="hero-caption">${escapeHtml((piece.universe || 'pixel daily').toUpperCase())}</div>
-              <div class="hero-title">${escapeHtml(piece.title || '—')}</div>
+              <div class="hero-title${(piece.title||'').length > 9 ? ' is-long' : ''}">${escapeHtml(piece.title || '—')}</div>
               <div class="hero-date">${piece.date}</div>
               <div class="hero-num">№${dailyNum}</div>
             </div>`;
