@@ -211,11 +211,18 @@
     .stamp-meta {
       flex: 1;
       min-height: 0;
+      min-width: 0;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 6px;
       padding: 0 6px 0 2px;
+      overflow: hidden;
+    }
+    .stamp-meta > div:first-child {
+      flex: 1 1 auto;
+      min-width: 0;
+      overflow: hidden;
     }
 
     /* ── Full-bleed hero variant ── */
@@ -283,7 +290,7 @@
       font-size: 0.72rem;
       color: var(--stamp-ink);
       line-height: 1.1;
-      max-width: 60%;
+      max-width: 100%;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -301,6 +308,7 @@
       color: var(--stamp-ink);
       line-height: 1;
       margin-left: auto;
+      flex: 0 0 auto;
     }
 
     .pin {
