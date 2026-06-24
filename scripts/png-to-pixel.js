@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Usage: node png-to-pixel.js <input> <name> <universe> [size=24] [palette=8]
+// Usage: node png-to-pixel.js <input> <name> <universe> [size=24] [palette=8] [category=heroes]
 //
 // Strategy: AI "pixel art" images aren't on a true integer grid — chunky pixels
 // are ~30-50 source-px wide and slightly anti-aliased. Instead of lanczos
@@ -12,7 +12,7 @@ const fs = require('fs');
 const sharp = require('sharp');
 
 async function main() {
-  const [,, input, name, universe, sizeArg, paletteArg] = process.argv;
+  const [,, input, name, universe, sizeArg, paletteArg, categoryArg] = process.argv;
   if (!input || !name) {
     console.error('usage: png-to-pixel.js <input> <name> <universe> [size=24] [palette=8]');
     process.exit(2);
@@ -64,7 +64,7 @@ async function main() {
     title: name,
     size: SIZE,
     fps: 1,
-    category: 'heroes',
+    category: (categoryArg || 'heroes').toLowerCase(),
     universe: universe || 'marvel',
     palette: hexPalette,
     frames: [frame]

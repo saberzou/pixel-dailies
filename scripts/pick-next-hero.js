@@ -1,16 +1,13 @@
 #!/usr/bin/env node
-// Pick the next hero from the roster, skipping any whose title is already in data.js.
-// Prints JSON: { title, universe, prompt } to stdout. Exits 1 if roster exhausted.
-const fs = require('fs');
+// Back-compat shim: delegates to pick-next.js with category "heroes".
+// Kept so existing crons / scripts referencing pick-next-hero.js keep working.
+require('child_process');
+const { execFileSync } = require('child_process');
 const path = require('path');
-const dir = path.dirname(__dirname);
-const roster = JSON.parse(fs.readFileSync(path.join(dir, 'scripts/heroes-roster.json'), 'utf8'));
-const src = fs.readFileSync(path.join(dir, 'data.js'), 'utf8');
-const arr = JSON.parse(src.replace(/^const gallery = /, '').replace(/;\s*$/, ''));
-const usedTitles = new Set(arr.filter(p => p.category === 'heroes').map(p => p.title));
-const next = roster.find(h => !usedTitles.has(h.title));
-if (!next) {
-  console.error('Roster exhausted');
-  process.exit(1);
+try {
+  const out = execFileSync('node', [path.join(__dirname, 'pick-next.js'), 'heroes'], { encoding: 'utf8' });
+  process.stdout.write(out);
+} catch (e) {
+  if (e.stderr) process.stderr.write(e.stderr);
+  process.exit(e.status || 1);
 }
-process.stdout.write(JSON.stringify(next));
