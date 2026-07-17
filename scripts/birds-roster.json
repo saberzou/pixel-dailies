@@ -1,22 +1,172 @@
 [
-  { "title": "The Northern Cardinal", "universe": "songbird", "prompt": "extreme close-up of a vivid scarlet-red cardinal head in profile filling the entire frame, sharp black face mask around a thick orange triangular beak, pointed red crest. Limited palette: scarlet red, dark red, black, orange, white." },
-  { "title": "The American Robin", "universe": "songbird", "prompt": "full-bleed close-up of a robin's rounded rust-orange breast and gray back, head turned in profile with a small dark eye and yellow beak, the orange belly fills most of the frame. Limited palette: rust orange, slate gray, dark gray, yellow, black, white." },
-  { "title": "The Blue Jay", "universe": "songbird", "prompt": "extreme close-up of a blue jay head and crest filling the frame, vivid azure-blue feathers with black barring, a black collar marking and pale face, sharp dark beak. Limited palette: azure blue, dark blue, black, white, pale gray." },
-  { "title": "The Atlantic Puffin", "universe": "seabird", "prompt": "full-bleed close-up of a puffin's face, large triangular beak striped in orange, yellow and blue-gray, round pale-white face with a small dark eye, black crown, the beak fills the lower half of the frame. Limited palette: orange, yellow, blue-gray, black, white." },
-  { "title": "The Snowy Owl", "universe": "raptor", "prompt": "extreme close-up of a snowy owl's round white face filling the frame, two large piercing yellow eyes, small dark hooked beak, sparse dark flecks on white feathers. Limited palette: white, pale gray, yellow, gold, black." },
-  { "title": "The Bald Eagle", "universe": "raptor", "prompt": "full-bleed close-up of a bald eagle head in profile, white feathered head, fierce yellow eye, large hooked golden-yellow beak, brown body feathers at the edge, the head fills the frame. Limited palette: white, brown, dark brown, yellow, gold, black." },
-  { "title": "The Ruby-Throated Hummingbird", "universe": "songbird", "prompt": "full-bleed close-up of a hummingbird hovering in profile, iridescent emerald-green back and a brilliant ruby-red throat patch, long thin needle beak crossing the frame, blurred wing. Limited palette: emerald green, dark green, ruby red, gray, black, white." },
-  { "title": "The Greater Flamingo", "universe": "wader", "prompt": "full-bleed close-up of a flamingo's curved neck and head forming an S, vivid pink plumage, the distinctive black-tipped pink downcurved beak, small round eye, the curve fills the frame. Limited palette: pink, deep pink, black, pale pink, white." },
-  { "title": "The Mandarin Duck", "universe": "waterfowl", "prompt": "extreme close-up of a male mandarin duck head, ornate orange cheek whiskers, green and purple iridescent crown, red beak, bold white eye stripe, the colorful head fills the frame. Limited palette: orange, green, purple, red, white, black, cream." },
-  { "title": "The Scarlet Macaw", "universe": "parrot", "prompt": "full-bleed close-up of a scarlet macaw head in profile, brilliant red plumage, bands of yellow and blue on the wing edge, large pale curved beak with black lower mandible, white facial patch. Limited palette: scarlet red, yellow, blue, white, black." },
-  { "title": "The Peacock", "universe": "fowl", "prompt": "extreme close-up of a peacock's iridescent eye-spot tail feather filling the entire frame, concentric rings of teal, blue, bronze and gold forming a single ocellus. Limited palette: teal, peacock blue, bronze, gold, green, black." },
-  { "title": "The Toco Toucan", "universe": "tropical", "prompt": "full-bleed close-up of a toco toucan's enormous bright-orange beak crossing the entire frame diagonally, black body feathers, a ring of pale blue skin around the small eye. Limited palette: bright orange, black, white, pale blue, dark orange." },
-  { "title": "The Barn Owl", "universe": "raptor", "prompt": "extreme close-up of a barn owl's heart-shaped pale facial disc filling the frame, two dark almond eyes, pale tan and white feathers, small downturned beak. Limited palette: cream, pale tan, white, brown, black." },
-  { "title": "The European Robin", "universe": "songbird", "prompt": "full-bleed close-up of a European robin's round orange-red face and breast, brown cap and back, small dark eye and thin beak, the warm orange chest fills the frame center. Limited palette: orange, rust, brown, olive, white, black." },
-  { "title": "The Kingfisher", "universe": "waterbird", "prompt": "extreme close-up of a common kingfisher in profile, electric blue back and crown, bright copper-orange underparts and cheek, long straight black dagger beak. Limited palette: electric blue, teal, copper orange, black, white." },
-  { "title": "The Goldfinch", "universe": "songbird", "prompt": "full-bleed close-up of an American goldfinch, brilliant lemon-yellow body, jet-black cap and wings with white bars, small conical pinkish beak, the yellow fills the frame. Limited palette: lemon yellow, black, white, pale orange." },
-  { "title": "The Great Horned Owl", "universe": "raptor", "prompt": "extreme close-up of a great horned owl's face, two prominent feather tufts like horns, huge yellow-gold eyes, mottled brown and gray feathers, hooked dark beak, the face fills the frame. Limited palette: brown, tan, gray, gold, yellow, black, white." },
-  { "title": "The Hyacinth Macaw", "universe": "parrot", "prompt": "full-bleed close-up of a hyacinth macaw head in profile, deep cobalt-blue plumage, a vivid yellow ring around the eye and a yellow crescent at the base of the large black curved beak. Limited palette: cobalt blue, dark blue, yellow, black." },
-  { "title": "The Mallard Drake", "universe": "waterfowl", "prompt": "extreme close-up of a male mallard head, glossy iridescent green head and neck filling the frame, bright yellow flat beak, small dark eye, a thin white neck ring at the edge. Limited palette: iridescent green, dark green, yellow, white, brown, black." },
-  { "title": "The Snowy Egret", "universe": "wader", "prompt": "full-bleed close-up of a snowy egret's elegant white head and S-curved neck, slender black dagger beak, bright yellow lores around a sharp eye, wispy white plumes, against soft blue. Limited palette: white, pale gray, black, yellow, pale blue." }
+  {
+    "title": "The Northern Cardinal",
+    "universe": "songbird",
+    "prompt": "extreme close-up of a vivid scarlet-red cardinal head in profile filling the entire frame, sharp black face mask around a thick orange triangular beak, pointed red crest. Limited palette: scarlet red, dark red, black, orange, white."
+  },
+  {
+    "title": "The American Robin",
+    "universe": "songbird",
+    "prompt": "full-bleed close-up of a robin's rounded rust-orange breast and gray back, head turned in profile with a small dark eye and yellow beak, the orange belly fills most of the frame. Limited palette: rust orange, slate gray, dark gray, yellow, black, white."
+  },
+  {
+    "title": "The Blue Jay",
+    "universe": "songbird",
+    "prompt": "extreme close-up of a blue jay head and crest filling the frame, vivid azure-blue feathers with black barring, a black collar marking and pale face, sharp dark beak. Limited palette: azure blue, dark blue, black, white, pale gray."
+  },
+  {
+    "title": "The Atlantic Puffin",
+    "universe": "seabird",
+    "prompt": "full-bleed close-up of a puffin's face, large triangular beak striped in orange, yellow and blue-gray, round pale-white face with a small dark eye, black crown, the beak fills the lower half of the frame. Limited palette: orange, yellow, blue-gray, black, white."
+  },
+  {
+    "title": "The Snowy Owl",
+    "universe": "raptor",
+    "prompt": "extreme close-up of a snowy owl's round white face filling the frame, two large piercing yellow eyes, small dark hooked beak, sparse dark flecks on white feathers. Limited palette: white, pale gray, yellow, gold, black."
+  },
+  {
+    "title": "The Bald Eagle",
+    "universe": "raptor",
+    "prompt": "full-bleed close-up of a bald eagle head in profile, white feathered head, fierce yellow eye, large hooked golden-yellow beak, brown body feathers at the edge, the head fills the frame. Limited palette: white, brown, dark brown, yellow, gold, black."
+  },
+  {
+    "title": "The Ruby-Throated Hummingbird",
+    "universe": "songbird",
+    "prompt": "full-bleed close-up of a hummingbird hovering in profile, iridescent emerald-green back and a brilliant ruby-red throat patch, long thin needle beak crossing the frame, blurred wing. Limited palette: emerald green, dark green, ruby red, gray, black, white."
+  },
+  {
+    "title": "The Greater Flamingo",
+    "universe": "wader",
+    "prompt": "full-bleed close-up of a flamingo's curved neck and head forming an S, vivid pink plumage, the distinctive black-tipped pink downcurved beak, small round eye, the curve fills the frame. Limited palette: pink, deep pink, black, pale pink, white."
+  },
+  {
+    "title": "The Mandarin Duck",
+    "universe": "waterfowl",
+    "prompt": "extreme close-up of a male mandarin duck head, ornate orange cheek whiskers, green and purple iridescent crown, red beak, bold white eye stripe, the colorful head fills the frame. Limited palette: orange, green, purple, red, white, black, cream."
+  },
+  {
+    "title": "The Scarlet Macaw",
+    "universe": "parrot",
+    "prompt": "full-bleed close-up of a scarlet macaw head in profile, brilliant red plumage, bands of yellow and blue on the wing edge, large pale curved beak with black lower mandible, white facial patch. Limited palette: scarlet red, yellow, blue, white, black."
+  },
+  {
+    "title": "The Peacock",
+    "universe": "fowl",
+    "prompt": "extreme close-up of a peacock's iridescent eye-spot tail feather filling the entire frame, concentric rings of teal, blue, bronze and gold forming a single ocellus. Limited palette: teal, peacock blue, bronze, gold, green, black."
+  },
+  {
+    "title": "The Toco Toucan",
+    "universe": "tropical",
+    "prompt": "full-bleed close-up of a toco toucan's enormous bright-orange beak crossing the entire frame diagonally, black body feathers, a ring of pale blue skin around the small eye. Limited palette: bright orange, black, white, pale blue, dark orange."
+  },
+  {
+    "title": "The Barn Owl",
+    "universe": "raptor",
+    "prompt": "extreme close-up of a barn owl's heart-shaped pale facial disc filling the frame, two dark almond eyes, pale tan and white feathers, small downturned beak. Limited palette: cream, pale tan, white, brown, black."
+  },
+  {
+    "title": "The European Robin",
+    "universe": "songbird",
+    "prompt": "full-bleed close-up of a European robin's round orange-red face and breast, brown cap and back, small dark eye and thin beak, the warm orange chest fills the frame center. Limited palette: orange, rust, brown, olive, white, black."
+  },
+  {
+    "title": "The Kingfisher",
+    "universe": "waterbird",
+    "prompt": "extreme close-up of a common kingfisher in profile, electric blue back and crown, bright copper-orange underparts and cheek, long straight black dagger beak. Limited palette: electric blue, teal, copper orange, black, white."
+  },
+  {
+    "title": "The Goldfinch",
+    "universe": "songbird",
+    "prompt": "full-bleed close-up of an American goldfinch, brilliant lemon-yellow body, jet-black cap and wings with white bars, small conical pinkish beak, the yellow fills the frame. Limited palette: lemon yellow, black, white, pale orange."
+  },
+  {
+    "title": "The Great Horned Owl",
+    "universe": "raptor",
+    "prompt": "extreme close-up of a great horned owl's face, two prominent feather tufts like horns, huge yellow-gold eyes, mottled brown and gray feathers, hooked dark beak, the face fills the frame. Limited palette: brown, tan, gray, gold, yellow, black, white."
+  },
+  {
+    "title": "The Hyacinth Macaw",
+    "universe": "parrot",
+    "prompt": "full-bleed close-up of a hyacinth macaw head in profile, deep cobalt-blue plumage, a vivid yellow ring around the eye and a yellow crescent at the base of the large black curved beak. Limited palette: cobalt blue, dark blue, yellow, black."
+  },
+  {
+    "title": "The Mallard Drake",
+    "universe": "waterfowl",
+    "prompt": "extreme close-up of a male mallard head, glossy iridescent green head and neck filling the frame, bright yellow flat beak, small dark eye, a thin white neck ring at the edge. Limited palette: iridescent green, dark green, yellow, white, brown, black."
+  },
+  {
+    "title": "The Snowy Egret",
+    "universe": "wader",
+    "prompt": "full-bleed close-up of a snowy egret's elegant white head and S-curved neck, slender black dagger beak, bright yellow lores around a sharp eye, wispy white plumes, against soft blue. Limited palette: white, pale gray, black, yellow, pale blue."
+  },
+  {
+    "title": "The American Goldfinch",
+    "universe": "songbird",
+    "prompt": "extreme close-up of a bright lemon-yellow goldfinch head in profile filling the entire frame, black cap on forehead, short conical pinkish beak, small dark eye. Limited palette: lemon yellow, black, white, pink."
+  },
+  {
+    "title": "The Baltimore Oriole",
+    "universe": "songbird",
+    "prompt": "extreme close-up of a vivid orange and black oriole head in profile filling the entire frame, solid black hood, sharp pointed grey beak, bright orange breast below. Limited palette: bright orange, black, grey, white."
+  },
+  {
+    "title": "The Painted Bunting",
+    "universe": "songbird",
+    "prompt": "extreme close-up of a multicolor painted bunting head in profile filling the entire frame, cobalt-blue head, red eye-ring, green nape, thick silver conical beak. Limited palette: cobalt blue, red, green, silver, white."
+  },
+  {
+    "title": "The Common Kingfisher",
+    "universe": "waterbird",
+    "prompt": "extreme close-up of an electric-blue and orange kingfisher head in profile filling the entire frame, long straight black dagger beak, blue crown, orange cheek patch. Limited palette: electric blue, teal, orange, black, white."
+  },
+  {
+    "title": "The Emperor Penguin",
+    "universe": "seabird",
+    "prompt": "extreme close-up of an emperor penguin head in profile filling the entire frame, black head, bright golden-orange ear patch fading down the neck, long curved slate beak with orange stripe. Limited palette: black, golden orange, slate grey, white."
+  },
+  {
+    "title": "The Wood Duck",
+    "universe": "waterfowl",
+    "prompt": "extreme close-up of an iridescent wood duck drake head in profile filling the entire frame, green and purple crested head, bold white facial stripes, red eye, red-and-white beak. Limited palette: iridescent green, purple, white, red, black."
+  },
+  {
+    "title": "The Roseate Spoonbill",
+    "universe": "wader",
+    "prompt": "extreme close-up of a roseate spoonbill head in profile filling the entire frame, pale bald greenish head, long flat grey spatula-shaped beak, pink neck feathers below, red eye. Limited palette: pink, pale green, grey, red, white."
+  },
+  {
+    "title": "The Scarlet Ibis",
+    "universe": "wader",
+    "prompt": "extreme close-up of a scarlet ibis head in profile filling the entire frame, brilliant crimson head, long slender down-curved pinkish beak, small dark eye. Limited palette: crimson, scarlet, pink, black, white."
+  },
+  {
+    "title": "The Great Blue Heron",
+    "universe": "wader",
+    "prompt": "extreme close-up of a great blue heron head in profile filling the entire frame, blue-grey plumage, black eyebrow stripe trailing into a plume, long yellow dagger beak, yellow eye. Limited palette: blue-grey, black, yellow, white."
+  },
+  {
+    "title": "The Golden Pheasant",
+    "universe": "fowl",
+    "prompt": "extreme close-up of a golden pheasant head in profile filling the entire frame, golden-yellow silky crest, orange-and-black ruff, red face, pale horn beak, bright eye. Limited palette: golden yellow, orange, red, black, white."
+  },
+  {
+    "title": "The Keel-Billed Toucan",
+    "universe": "tropical",
+    "prompt": "extreme close-up of a keel-billed toucan head in profile filling the entire frame, huge rainbow beak of green orange red and blue, black head, lime-green face skin, pale eye. Limited palette: green, orange, red, blue, black, white."
+  },
+  {
+    "title": "The Rainbow Lorikeet",
+    "universe": "parrot",
+    "prompt": "extreme close-up of a rainbow lorikeet head in profile filling the entire frame, deep blue head, orange-red curved beak, lime-green nape, red eye. Limited palette: cobalt blue, orange, red, lime green, white."
+  },
+  {
+    "title": "The Peregrine Falcon",
+    "universe": "raptor",
+    "prompt": "extreme close-up of a peregrine falcon head in profile filling the entire frame, slate-grey crown, black malar stripe below a fierce dark eye with yellow ring, hooked yellow-and-grey beak. Limited palette: slate grey, black, yellow, white."
+  },
+  {
+    "title": "The Resplendent Quetzal",
+    "universe": "tropical",
+    "prompt": "extreme close-up of a resplendent quetzal head in profile filling the entire frame, iridescent emerald-green rounded crest, crimson breast below, short yellow beak, dark eye. Limited palette: emerald green, crimson, gold, black, white."
+  }
 ]
